@@ -29,7 +29,6 @@ package = "@sentry/netlify-build-plugin"
   sourceMapUrlPrefix = "~/_next"         # Matches Next.js directory structure
   releasePrefix = "release-"             # Optional prefix for releases
   skipSetCommits = true               # Enable commit tracking for Sentry
-  skipSourceMaps = true                 #Ensure source maps are uploaded
   deployPreviews = false                 # Disable previews for deploys
   sentryRepository = "candy00961/codo10"      # Your GitHub repository
 
