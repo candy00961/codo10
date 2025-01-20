@@ -19,10 +19,10 @@ package = "@netlify/plugin-lighthouse"
 [[plugins]]
 package = "@sentry/netilfy-build-plugin"
 [plugin.inputs]
-org = "Cloud Perry"
-project = "codo9"
-slug = "https://cloud-perry.sentry.io/settings/projects/codo9/"
-AUTH_TOKEN = "emv: ************PMN8"
+org = "cloudperry"
+project = "codo10"
+slug = "https://cloud-perry.sentry.io/settings/projects/codo10/"
+AUTH_TOKEN = "emv: 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"
 deploy = true
 dryRun = true
 [[redirects]]
