@@ -20,7 +20,6 @@ package = "@netlify/plugin-lighthouse"
 package = "@sentry/netlify-build-plugin"
 
   [plugins.inputs]
-  sentryDSN = "https://ee53a2fb7d3edd6e6e3525bf5821a59b@o4508675390046208.ingest.us.sentry.io/4508675392733184"
   sentryOrg = "cloudperry"              # Replace with your Sentry organization slug
   sentryProject = "codo10"                # Replace with your Sentry project slug
   sentryAuthToken = "${SENTRY_AUTH_TOKEN}" # Ensure this is configured in Netlify environment variables
