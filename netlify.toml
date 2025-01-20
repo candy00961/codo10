@@ -24,7 +24,7 @@ package = "@netlify/plugin-lighthouse"
 package = "@sentry/netlify-build-plugin"
 
   [plugins.inputs]
-  sentryOrg = "cloud-perry"              # Replace with your Sentry organization slug
+  sentryOrg = "cloudperry"              # Replace with your Sentry organization slug
   sentryProject = "codo9"                # Replace with your Sentry project slug
   sentryAuthToken = "${SENTRY_AUTH_TOKEN}" # Ensure this is configured in Netlify environment variables
   sentryRelease = "${COMMIT_REF}"        # Use commit hash for release version
