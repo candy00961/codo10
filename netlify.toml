@@ -10,6 +10,10 @@ base = "/"
 
 [build.environment]
   SENTRY_LOG_LEVEL = "debug"            # Set Sentry logging level
+  NEXT_TELEMETRY_DISABLED = "1"         # Disable Next.js telemetry
+  NODE_OPTIONS = "--max_old_space_size=4096" # Increase Node.js memory
+  NODE_VERSION = "20.18.1"              # Corrected typo from NODE_VERSIOB
+
 [[plugins]]
 package = "@netlify/plugin-nextjs"
 
@@ -20,6 +24,7 @@ package = "@netlify/plugin-lighthouse"
 package = "@sentry/netlify-build-plugin"
 
   [plugins.inputs]
+  sentryDSN = "https://ee53a2fb7d3edd6e6e3525bf5821a59b@o4508675390046208.ingest.us.sentry.io/4508675392733184"
   sentryOrg = "cloudperry"              # Replace with your Sentry organization slug
   sentryProject = "codo10"                # Replace with your Sentry project slug
   sentryAuthToken = "${SENTRY_AUTH_TOKEN}" # Ensure this is configured in Netlify environment variables
@@ -28,6 +33,7 @@ package = "@sentry/netlify-build-plugin"
   sourceMapUrlPrefix = "~/_next"         # Matches Next.js directory structure
   releasePrefix = "release-"             # Optional prefix for releases
   skipSetCommits = true               # Enable commit tracking for Sentry
+  skipSourceMaps = true                 #Ensure source maps are uploaded
   deployPreviews = false                 # Disable previews for deploys
   sentryRepository = "candy00961/codo10"      # Your GitHub repository
 
