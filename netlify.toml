@@ -25,7 +25,7 @@ package = "@sentry/netlify-build-plugin"
 
   [plugins.inputs]
   sentryOrg = "cloudperry"              # Replace with your Sentry organization slug
-  sentryProject = "codo9"                # Replace with your Sentry project slug
+  sentryProject = "codo10"                # Replace with your Sentry project slug
   sentryAuthToken = "${SENTRY_AUTH_TOKEN}" # Ensure this is configured in Netlify environment variables
   sentryRelease = "${COMMIT_REF}"        # Use commit hash for release version
   sourceMapPath = ".next"                # Path to source maps
