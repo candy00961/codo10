@@ -51,6 +51,7 @@ status = 200
 from = "/_ipx/*"
 to = "/.netlify/images?url=:url&w=:width&q=:quality"
 status = 200
+force = true
 
   [redirects.query]
   url = ":url"
