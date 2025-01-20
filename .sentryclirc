@@ -1,5 +1,5 @@
 [defaults]
-org="env: Cloud Perry"
+org="env: cloudperry"
 project="env:node"
 
 [auth]
