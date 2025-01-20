@@ -13,6 +13,7 @@ base = "/"
   NEXT_TELEMETRY_DISABLED = "1"         # Disable Next.js telemetry
   NODE_OPTIONS = "--max_old_space_size=4096" # Increase Node.js memory
   NODE_VERSION = "20.18.1"              # Corrected typo from NODE_VERSIOB
+PYTHON_VERSION = "3.11.5"
 
 [[plugins]]
 package = "@netlify/plugin-nextjs"
