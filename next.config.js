@@ -40,7 +40,7 @@ const nextConfig = {
 const sentryWebpackPluginOptions = {
   silent: false, // Display logs for debugging
   org: process.env.SENTRY_ORG || 'cloudperry', // Your Sentry organization slug
-  project: process.env.SENTRY_PROJECT || 'codo9', // Your Sentry project slug
+  project: process.env.SENTRY_PROJECT || 'codo10', // Your Sentry project slug
   release: process.env.COMMIT_REF || 'development', // Release version for Sentry
   include: '.next', // Include the .next directory for source map uploads
   ignore: ['node_modules'], // Ignore node_modules
