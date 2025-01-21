@@ -69,3 +69,7 @@ force = true
     remote_images = [
       "^(?:https:\\/\\/images\\.ctfassets\\.net(?:\\/(?!\\.)(?:(?:(?!(?:^|\\/)\\.).)*?)|$))$"
     ]
+    [[headers]]
+for = "/*"
+  [headers.values]
+  x-sentry-release = "${COMMIT_REF}"
