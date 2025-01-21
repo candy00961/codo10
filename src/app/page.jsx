@@ -8,7 +8,7 @@ const componentMap = {
   stats: Stats,
 };
 
-export default async function ComposablePage() {
+const HomePage = async () => {
   try {
     const page = await getPageFromSlug("/");
 
@@ -28,4 +28,6 @@ export default async function ComposablePage() {
     console.error(error.message);
     return notFound();
   }
-}
+};
+
+export default HomePage;
