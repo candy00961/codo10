@@ -4,7 +4,7 @@ import { createClient } from "contentful";
 // Create Contentful client outside of the configuration
 const client = createClient({
   space: process.env.CONTENTFUL_SPACE_ID!,
-  previerToken: process.env.CONTENTFUL_PREVIEW_TOKEN!,
+  previewToken: process.env.CONTENTFUL_PREVIEW_TOKEN!,
 });
 
 export default defineStackbitConfig({
