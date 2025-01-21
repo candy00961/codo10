@@ -4,6 +4,7 @@ const client = createClient({
   space: process.env.CONTENTFUL_SPACE_ID,
   accessToken: process.env.CONTENTFUL_DELIVERY_TOKEN,
 });
+module.exports = client;
 
 export async function fetchEntries() {
   try {
