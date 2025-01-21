@@ -1,54 +1,29 @@
-import { defineStackbitConfig } from "@stackbit/types";
-import { createClient } from "contentful";
+import { ContentfulContentSource } from '@stackbit/cms-contentful';
 
-// Create Contentful client outside of the configuration
-const client = createClient({
-  space: process.env.CONTENTFUL_SPACE_ID!,
-  accessToken: process.env.CONTENTFUL_MANAGEMENT_TOKEN!,
-});
-
-export default defineStackbitConfig({
-  stackbitVersion: "~0.6.0",
-  nodeVersion: "20.18.1",
-  modelExtensions: [
-    {
-      name: "Invoice",
-      type: "page",
-      urlPath: "/invoices/{slug}",
-    },
+const config = {
+  stackbitVersion: '~0.6.0',
+  ssgName: 'nextjs',
+  nodeVersion: '18',
+  contentSources: [
+    new ContentfulContentSource({
+      spaceId: process.env.CONTENTFUL_SPACE_ID,
+      environment: process.env.CONTENTFUL_ENVIRONMENT || 'master',
+      previewToken: process.env.CONTENTFUL_PREVIEW_TOKEN,
+      accessToken: process.env.CONTENTFUL_MANAGEMENT_TOKEN,
+    }),
   ],
-  siteMap: ({ documents }) => {
-    if (!documents || !Array.isArray(documents)) {
-      console.warn("Documents are undefined or not an array.");
-      return [];
-    }
-
-    return documents
-      .filter((doc) => doc.modelName === "Invoice")
-      .map((document) => {
-        const slug = document.fields?.slug || "unknown-slug";
-        return {
-          stableId: document.id,
-          urlPath: `/invoices/${slug}`,
-          document,
-        };
-      });
+  modelExtensions: [{ name: 'page', type: 'page', urlPath: '/{slug}' }],
+  // Needed only for importing this repository via https://app.stackbit.com/import?mode=duplicate
+  import: {
+    type: 'contentful',
+    contentFile: 'contentful/export.json',
+    uploadAssets: true,
+    assetsDirectory: 'contentful',
+    spaceIdEnvVar: 'CONTENTFUL_SPACE_ID',
+    deliveryTokenEnvVar: 'CONTENTFUL_DELIVERY_TOKEN',
+    previewTokenEnvVar: 'CONTENTFUL_PREVIEW_TOKEN',
+    accessTokenEnvVar: 'CONTENTFUL_MANAGEMENT_TOKEN',
   },
-  
+};
 
-});
-
-// Separate the fetchEntries function
-export async function fetchEntries(contentType: string) {
-  try {
-    const entries = await client.getEntries({
-      content_type: contentType,
-      "fields.slug[exists]": true,
-    });
-    return entries.items;
-  } catch (error) {
-    console.error("Error fetching entries:", error);
-    throw error;
-  }
-}
-
+export default config;
