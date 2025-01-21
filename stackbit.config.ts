@@ -1,6 +1,5 @@
 import { ContentfulContentSource } from '@stackbit/cms-contentful';
-import { defineStackbitConfig } from "@stackbit/types";
-
+import { defineStackbitConfig, SiteMapEntry } from "@stackbit/types";
 const config = {
   stackbitVersion: '~0.6.0',
   ssgName: 'nextjs',
