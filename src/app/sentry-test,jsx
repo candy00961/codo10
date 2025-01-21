@@ -1,0 +1,28 @@
+import React from "react";
+
+export default function SentryTest() {
+  const handleError = () => {
+    // This will throw an error and send it to Sentry
+    throw new Error("Testing Sentry integration!");
+  };
+
+  return (
+    <div style={{ padding: "20px", textAlign: "center" }}>
+      <h1>Test Sentry Integration</h1>
+      <button
+        style={{
+          padding: "10px 20px",
+          backgroundColor: "red",
+          color: "white",
+          border: "none",
+          borderRadius: "5px",
+          cursor: "pointer",
+        }}
+        onClick={handleError}
+      >
+        Trigger Error
+      </button>
+    </div>
+  );
+}
+
