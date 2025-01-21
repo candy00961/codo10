@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "preinstall": "npx npm-force-resolutions",
+ 
     "dev": "next dev",
     "build": "next build",
-    "postbuild": "next-sentry-source-maps",
+   
     "start": "next start",
     "import": "node ./contentful/import.js"
   },
@@ -17,7 +17,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
      "axios": "latest",
-    #"@sentry/netlify-build-plugin": "1.1.1",
+
     "@netlify/plugin-lighthouse": "6.0.1"
   },
   "devDependencies": {
