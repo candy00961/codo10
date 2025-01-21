@@ -30,6 +30,7 @@ const nextConfig = {
         test: /\.js$/,
         enforce: 'pre',
         use: ['source-map-loader'],
+        exclude: /node_modules/
       });
     }
 
@@ -52,5 +53,7 @@ const sentryWebpackPluginOptions = {
   debug: false, // Set to false for production to avoid cluttering logs
   deleteSourcemapsAfterUpload: true, // Prevent serving source maps to users
 };
+
+
 
 module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions);
