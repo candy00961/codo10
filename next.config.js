@@ -15,9 +15,7 @@ const nextConfig = {
     CONTENTFUL_SPACE_ID: process.env.CONTENTFUL_SPACE_ID,
     CONTENTFUL_PREVIEW_TOKEN: process.env.CONTENTFUL_PREVIEW_TOKEN,
     CONTENTFUL_MANAGEMENT_TOKEN: process.env.CONTENTFUL_MANAGEMENT_TOKEN,
-    CONTENTFUL_ENVIRONMENT: process.env.CONTENTFUL_ENVIRONMENT || 'master',
-    #SENTRY_DSN: process.env.SENTRY_DSN, // Sentry DSN for error tracking
-    #SENTRY_RELEASE: process.env.COMMIT_REF || 'development', // Release version for Sentry
+    CONTENTFUL_ENVIRONMENT: process.env.CONTENTFUL_ENVIRONMENT || 'master'
   },
   webpack: (config, { isServer }) => {
     // Enable source maps for debugging
