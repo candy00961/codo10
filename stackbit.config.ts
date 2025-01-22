@@ -67,7 +67,7 @@ const config = {
     previewTokenEnvVar: 'CONTENTFUL_PREVIEW_TOKEN',
     accessTokenEnvVar: 'CONTENTFUL_MANAGEMENT_TOKEN',
   },
-  siteMap: ({ documents, modelExtensions }) => {
+  siteMap: ({ documents, models }) => {
     // 1. Filter all page models which were defined in modelExtensions
     const pageModels = models.filter((m) => m.type === "page")
 
