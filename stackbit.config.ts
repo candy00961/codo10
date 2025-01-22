@@ -1,5 +1,6 @@
 import { ContentfulContentSource } from '@stackbit/cms-contentful';
 import { defineStackbitConfig, SiteMapEntry } from "@stackbit/types";
+
 const config = {
   stackbitVersion: '~0.6.0',
   ssgName: 'nextjs',
@@ -11,11 +12,11 @@ const config = {
       previewToken: process.env.CONTENTFUL_PREVIEW_TOKEN,
       accessToken: process.env.CONTENTFUL_MANAGEMENT_TOKEN,
     }),
-  ], contentModelMap: {
+  ],
+  contentModelMap: {
     invoice: { type: 'data' }
   },
-  
-   models: {
+  models: {
     invoice: {
       type: 'data',
       label: 'Invoice',
@@ -54,8 +55,11 @@ const config = {
         }
       ]
     }
-  }
-  modelExtensions: [{ name: 'page', type: 'page', urlPath: '/{slug}' }],
+  },
+  modelExtensions: [
+    { name: 'Page', type: 'page', urlPath: '/{slug}' },
+    { name: 'Post', type: 'page', urlPath: '/blog/{slug}' }
+  ],
   // Needed only for importing this repository via https://app.stackbit.com/import?mode=duplicate
   import: {
     type: 'contentful',
@@ -69,31 +73,29 @@ const config = {
   },
   siteMap: ({ documents, models }) => {
     // 1. Filter all page models which were defined in modelExtensions
-    const pageModels = models.filter((m) => m.type === "page")
+    const pageModels = models.filter((m) => m.type === "page");
 
     return documents
       // 2. Filter all documents which are of a page model
       .filter((d) => pageModels.some(m => m.name === d.modelName))
       // 3. Map each document to a SiteMapEntry
       .map((document) => {
-        // Map the model name to its corresponding URL
-        const urlModel = (() => {
-            switch (document.modelName) {
-                case 'Page':
-                    return 'otherPage';
-                case 'Blog':
-                    return 'otherBlog';
-                default:
-                    return null;
-            }
-        })();
+        // Find the model extension corresponding to the document's model
+        const modelExtension = pageModels.find(m => m.name === document.modelName);
 
-        return {
-          stableId: document.id,
-          urlPath: `/${urlModel}/${document.id}`,
-          document,
-          isHomePage: false,
-        };
+        // If model extension is found, construct the URL path
+        if (modelExtension) {
+          const urlPath = modelExtension.urlPath.replace("{slug}", document.slug);
+
+          return {
+            stableId: document.id,
+            urlPath: urlPath,
+            document,
+            isHomePage: false,
+          };
+        }
+
+        return null;
       })
       .filter(Boolean) as SiteMapEntry[];
   }
