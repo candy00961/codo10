@@ -14,8 +14,8 @@ const config = {
     }),
   ],
   modelExtensions: [
-    { name: 'Page', type: 'Invoice', urlPath: '/' },
-    { name: 'Page', type: 'Home', urlPath: '/' }
+    { name: '1234', type: 'Invoice', urlPath: '/{slug}' },
+    { name: 'Home', type: 'Home', urlPath: '/' } // Home page URL set to root
   ],
   import: {
     type: 'contentful',
@@ -41,7 +41,7 @@ const config = {
             stableId: document.id,
             urlPath: urlPath,
             document,
-            isHomePage: false,
+            isHomePage: document.modelName === 'Home', // Set isHomePage to true if modelName is 'Home'
           };
         }
         return null;
