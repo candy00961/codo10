@@ -14,7 +14,8 @@ const config = {
     }),
   ],
   contentModelMap: {
-    invoice: { type: 'data' }
+    invoice: { type: 'data' },
+    home: { type: 'data' }
   },
   models: {
     invoice: {
@@ -55,9 +56,11 @@ const config = {
         }
       ]
     },
-    Page: {
-      type: 'page',
-      label: 'Page',
+    home: {
+      type: 'data',
+      label: 'Home',
+      description: 'home',
+      labelField: 'title',
       fields: [
         {
           type: 'string',
@@ -65,43 +68,30 @@ const config = {
           label: 'Title'
         },
         {
-          type: 'string',
-          name: 'slug',
-          label: 'Slug'
-        },
-        {
-          type: 'text',
+          type: 'rich-text',
           name: 'description',
           label: 'Description'
         },
         {
-          type: 'list',
+          type: 'rich-text',
           name: 'features',
-          label: 'Features',
-          items: {
-            type: 'string'
-          }
-        }
-      ]
-    },
-    Post: {
-      type: 'page',
-      label: 'Post',
-      fields: [
+          label: 'Features'
+        },
         {
-          type: 'string',
-          name: 'title',
-          label: 'Title'
+          type: 'media',
+          name: 'screenshots',
+          label: 'Screenshots',
+          multiple: true
+        },
+        {
+          type: 'object',
+          name: 'callToActionButton',
+          label: 'Call to action button'
         },
         {
           type: 'string',
           name: 'slug',
           label: 'Slug'
-        },
-        {
-          type: 'text',
-          name: 'content',
-          label: 'Content'
         }
       ]
     }
