@@ -1,6 +1,3 @@
-import { ContentfulContentSource } from '@stackbit/cms-contentful';
-import { defineStackbitConfig, SiteMapEntry } from "@stackbit/types";
-
 const config = {
   stackbitVersion: '~0.6.0',
   ssgName: 'nextjs',
@@ -13,10 +10,85 @@ const config = {
       accessToken: process.env.CONTENTFUL_MANAGEMENT_TOKEN,
     }),
   ],
+  contentModelMap: {
+    invoice: { type: 'data' }
+  },
+  models: {
+    invoice: {
+      type: 'data',
+      label: 'Invoice',
+      description: 'invoice',
+      labelField: 'invoiceNumber',
+      fields: [
+        {
+          type: 'string',
+          name: 'invoiceNumber',
+          label: 'Invoice number'
+        },
+        {
+          type: 'text',
+          name: 'customerName',
+          label: 'Customer name'
+        },
+        {
+          type: 'number',
+          name: 'totalAmount',
+          label: 'Total amount'
+        },
+        {
+          type: 'date',
+          name: 'dueDate',
+          label: 'Due date'
+        },
+        {
+          type: 'object',
+          name: 'items',
+          label: 'Items'
+        },
+        {
+          type: 'boolean',
+          name: 'paymentReceived',
+          label: 'Payment received'
+        }
+      ]
+    },
+    // Update Page model
+    Page: {
+      type: 'page',
+      label: 'Page',
+      fields: [
+        {
+          type: 'string',
+          name: 'title',
+          label: 'Title'
+        },
+        {
+          type: 'string',
+          name: 'slug',
+          label: 'Slug'
+        },
+        {
+          type: 'text',
+          name: 'description',
+          label: 'Description'
+        },
+        {
+          type: 'list',
+          name: 'features',
+          label: 'Features',
+          items: {
+            type: 'string'
+          }
+        }
+      ]
+    },
+    // Update other models as needed
+  },
   modelExtensions: [
-    { name: 'Page', type: 'Invoice', urlPath: '/{slug}' },
-    { name: 'Past', type: 'Home', urlPath: '/' } // Home page URL set to root
+    { name: 'Page', type: 'page', urlPath: '/{slug}' },
+    { name: 'Post', type: 'page', urlPath: '/Home/{slug}' }
   ],
+  // Needed only for importing this repository via https://app.stackbit.com/import?mode=duplicate
   import: {
     type: 'contentful',
     contentFile: 'contentful/export.json',
@@ -28,22 +100,29 @@ const config = {
     accessTokenEnvVar: 'CONTENTFUL_MANAGEMENT_TOKEN',
   },
   siteMap: ({ documents, models }) => {
+    // 1. Filter all page models which were defined in modelExtensions
     const pageModels = models.filter((m) => m.type === "page");
 
     return documents
+      // 2. Filter all documents which are of a page model
       .filter((d) => pageModels.some(m => m.name === d.modelName))
+      // 3. Map each document to a SiteMapEntry
       .map((document) => {
+        // Find the model extension corresponding to the document's model
         const modelExtension = pageModels.find(m => m.name === document.modelName);
 
+        // If model extension is found, construct the URL path
         if (modelExtension) {
           const urlPath = modelExtension.urlPath.replace("{slug}", document.slug);
+
           return {
             stableId: document.id,
             urlPath: urlPath,
             document,
-            isHomePage: document.modelName === 'Home', // Set isHomePage to true if modelName is 'Home'
+            isHomePage: false,
           };
         }
+
         return null;
       })
       .filter(Boolean) as SiteMapEntry[];
