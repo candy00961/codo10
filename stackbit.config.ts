@@ -52,6 +52,11 @@ const config = {
           type: 'boolean',
           name: 'paymentReceived',
           label: 'Payment received'
+        },
+        {
+          type: 'string',
+          name: 'slug',
+          label: 'Slug'
         }
       ]
     }
@@ -105,7 +110,7 @@ const config = {
       {
         name: 'netlify-cms',
         options: {
-          siteUrl: 'https://codo10.netlify.app' ,
+          siteUrl: 'https://codo10.netlify.app',
           netlifyIdentity: true,
           manualInit: true,
         },
