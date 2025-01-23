@@ -1,18 +1,17 @@
-import { ContentfulContentSource } from '@stackbit/cms-contentful';
-import { defineStackbitConfig, SiteMapEntry } from "@stackbit/types";
+import { defineStackbitConfig } from "@stackbit/types";
+import { createClient } from "contentful";
 
-const config = {
-  stackbitVersion: '~0.6.0',
-  ssgName: 'nextjs',
-  nodeVersion: '20.18.1',
-  contentSources: [
-    new ContentfulContentSource({
-      spaceId: process.env.CONTENTFUL_SPACE_ID,
-      environment: process.env.CONTENTFUL_ENVIRONMENT || 'master',
-      previewToken: process.env.CONTENTFUL_PREVIEW_TOKEN,
-      accessToken: process.env.CONTENTFUL_MANAGEMENT_TOKEN,
-    }),
-  ],
+// Create Contentful client outside of the configuration
+const client = createClient({
+  spaceId: process.env.CONTENTFUL_SPACE_ID,
+  environment: process.env.CONTENTFUL_ENVIRONMENT || 'master',
+  previewToken: process.env.CONTENTFUL_PREVIEW_TOKEN,
+  accessToken: process.env.CONTENTFUL_MANAGEMENT_TOKEN,
+});
+
+export default defineStackbitConfig({
+  stackbitVersion: "~0.6.0",
+  nodeVersion: "20.18.1",
   contentModelMap: {
     invoice: { type: 'data' }
   },
@@ -60,17 +59,6 @@ const config = {
     { name: 'Page', type: 'page', urlPath: '/{slug}' },
     { name: 'Post', type: 'page', urlPath: '/Home/{slug}' }
   ],
-  // Needed only for importing this repository via https://app.stackbit.com/import?mode=duplicate
-  import: {
-    type: 'contentful',
-    contentFile: 'contentful/export.json',
-    uploadAssets: true,
-    assetsDirectory: 'contentful',
-    spaceIdEnvVar: 'CONTENTFUL_SPACE_ID',
-    deliveryTokenEnvVar: 'CONTENTFUL_DELIVERY_TOKEN',
-    previewTokenEnvVar: 'CONTENTFUL_PREVIEW_TOKEN',
-    accessTokenEnvVar: 'CONTENTFUL_MANAGEMENT_TOKEN',
-  },
   siteMap: ({ documents, models }) => {
     // 1. Filter all page models which were defined in modelExtensions
     const pageModels = models.filter((m) => m.type === "page");
@@ -99,6 +87,18 @@ const config = {
       })
       .filter(Boolean) as SiteMapEntry[];
   }
-};
+});
 
-export default config;
+// Separate the fetchEntries function
+export async function fetchEntries(contentType: string) {
+  try {
+    const entries = await client.getEntries({
+      content_type: contentType,
+      "fields.slug[exists]": true,
+    });
+    return entries.items;
+  } catch (error) {
+    console.error("Error fetching entries:", error);
+    throw error;
+  }
+}
