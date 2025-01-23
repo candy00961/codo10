@@ -14,7 +14,8 @@ const config = {
     }),
   ],
   contentModelMap: {
-    invoice: { type: 'data' }
+    invoice: { type: 'data' },
+    home: { type: 'data' }
   },
   models: {
     invoice: {
@@ -52,6 +53,45 @@ const config = {
           type: 'boolean',
           name: 'paymentReceived',
           label: 'Payment received'
+        }
+      ]
+    },
+    home: {
+      type: 'data',
+      label: 'Home',
+      description: 'home',
+      labelField: 'title',
+      fields: [
+        {
+          type: 'string',
+          name: 'title',
+          label: 'Title'
+        },
+        {
+          type: 'rich-text',
+          name: 'description',
+          label: 'Description'
+        },
+        {
+          type: 'rich-text',
+          name: 'features',
+          label: 'Features'
+        },
+        {
+          type: 'media',
+          name: 'screenshots',
+          label: 'Screenshots',
+          multiple: true
+        },
+        {
+          type: 'object',
+          name: 'callToActionButton',
+          label: 'Call to action button'
+        },
+        {
+          type: 'string',
+          name: 'slug',
+          label: 'Slug'
         }
       ]
     }
