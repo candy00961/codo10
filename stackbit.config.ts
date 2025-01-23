@@ -14,8 +14,8 @@ const config = {
     }),
   ],
   modelExtensions: [
-    { name: 'invoice', type: 'Invoice', urlPath: '/{slug}' },
-    { name: 'homePage', type: 'Home', urlPath: '/' }
+    { name: 'Page', type: 'Invoice', urlPath: '/{slug}' },
+    { name: 'Page', type: 'Home', urlPath: '/' }
   ],
   import: {
     type: 'contentful',
