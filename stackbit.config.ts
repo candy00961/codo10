@@ -58,7 +58,7 @@ const config = {
   },
   modelExtensions: [
     { name: 'Page', type: 'page', urlPath: '/{slug}' },
-    { name: 'Post', type: 'page', urlPath: '/blog/{slug}' }
+    { name: 'Post', type: 'page', urlPath: '/Home/{slug}' }
   ],
   // Needed only for importing this repository via https://app.stackbit.com/import?mode=duplicate
   import: {
