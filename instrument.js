@@ -2,7 +2,7 @@
 const Sentry = require("@sentry/node");
 
 Sentry.init({
-  dsn: "https://018a258fe683ef5f62b25f5741f88049@o4508613584355328.ingest.us.sentry.io/4508614047694848",
+  dsn: "https://ee53a2fb7d3edd6e6e3525bf5821a59b@o4508675390046208.ingest.us.sentry.io/4508675392733184",
 });
 
 // IMPORTANT: Make sure to import `instrument.js` at the top of your file.
