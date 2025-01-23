@@ -15,7 +15,7 @@ const config = {
   ],
   modelExtensions: [
     { name: 'Page', type: 'page', urlPath: '/{slug}' },
-    { name: 'Post', type: 'page', urlPath: '/Home/{slug}' }
+    { name: 'Home', type: 'page', urlPath: '/Home' }
   ],
   import: {
     type: 'contentful',
