@@ -1,6 +1,6 @@
 [defaults]
 org="env: Cloud Perru"
-project="env:node"
+project="env:codo10"
 
 [auth]
-token="env:************PMN8"
+token="env:************4388"
