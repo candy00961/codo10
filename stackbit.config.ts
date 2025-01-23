@@ -98,7 +98,20 @@ const config = {
         return null;
       })
       .filter(Boolean) as SiteMapEntry[];
-  }
+  },
+  netlify: {
+    cms: true,
+    plugins: [
+      {
+        name: 'netlify-cms',
+        options: {
+          siteUrl: 'https://codo10.netlify.app' ,
+          netlifyIdentity: true,
+          manualInit: true,
+        },
+      },
+    ],
+  },
 };
 
 export default config;
