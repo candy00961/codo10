@@ -3,4 +3,6 @@ org="env: cloudperry"
 project="env:codo10"
 
 [auth]
-token="env:************4388"
+
+token= "************4388"
+
