@@ -15,7 +15,7 @@ const config = {
   ],
   modelExtensions: [
     { name: '1234', type: 'Invoice', urlPath: '/{slug}' },
-    { name: 'Home', type: 'Home', urlPath: '/Home' }
+    { name: 'Home', type: 'Home', urlPath: '/' }
   ],
   import: {
     type: 'contentful',
