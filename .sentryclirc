@@ -1,6 +1,6 @@
 [defaults]
 org="env: cloudperry"
-project="env:node"
+project="env:codo10"
 
 [auth]
 token= "************4388"
