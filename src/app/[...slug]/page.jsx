@@ -9,7 +9,7 @@ const componentMap = {
 };
 
 export default async function ComposablePage({ params }) {
-  const { slug } = params;
+  const { slug } = await params;
   
   const pageSlug = slug.join('/');
 
