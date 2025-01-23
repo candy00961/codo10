@@ -1,3 +1,6 @@
+import { ContentfulContentSource } from '@stackbit/cms-contentful';
+import { defineStackbitConfig, SiteMapEntry } from "@stackbit/types";
+
 const config = {
   stackbitVersion: '~0.6.0',
   ssgName: 'nextjs',
@@ -52,7 +55,6 @@ const config = {
         }
       ]
     },
-    // Update Page model
     Page: {
       type: 'page',
       label: 'Page',
@@ -82,7 +84,27 @@ const config = {
         }
       ]
     },
-    // Update other models as needed
+    Post: {
+      type: 'page',
+      label: 'Post',
+      fields: [
+        {
+          type: 'string',
+          name: 'title',
+          label: 'Title'
+        },
+        {
+          type: 'string',
+          name: 'slug',
+          label: 'Slug'
+        },
+        {
+          type: 'text',
+          name: 'content',
+          label: 'Content'
+        }
+      ]
+    }
   },
   modelExtensions: [
     { name: 'Page', type: 'page', urlPath: '/{slug}' },
