@@ -15,7 +15,7 @@ const nextConfig = {
     CONTENTFUL_SPACE_ID: process.env.CONTENTFUL_SPACE_ID,
     CONTENTFUL_PREVIEW_TOKEN: process.env.CONTENTFUL_PREVIEW_TOKEN,
     CONTENTFUL_MANAGEMENT_TOKEN: process.env.CONTENTFUL_MANAGEMENT_TOKEN,
-    CONTENTFUL_ENVIRONMENT: process.env.CONTENTFUL_ENVIRONMENT || 'master'
+    CONTENTFUL_ENVIRONMENT: process.env.CONTENTFUL_ENVIRONMENT || 'master',
   },
   webpack: (config, { isServer }) => {
     // Enable source maps for debugging
@@ -27,7 +27,7 @@ const nextConfig = {
         test: /\.js$/,
         enforce: 'pre',
         use: ['source-map-loader'],
-        exclude: /node_modules/
+        exclude: /node_modules/,
       });
     }
 
@@ -50,7 +50,5 @@ const sentryWebpackPluginOptions = {
   debug: false, // Set to false for production to avoid cluttering logs
   deleteSourcemapsAfterUpload: true, // Prevent serving source maps to users
 };
-
-
 
 module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions);
