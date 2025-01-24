@@ -14,9 +14,8 @@ const config = defineStackbitConfig({
     }),
   ],
   modelExtensions: [
-    // Use names that exist in Contentful
-    { name: 'home', type: 'page', urlPath: '/{slug}' },
-    { name: 'invoice', type: 'page', urlPath: '/invoices/{slug}' },
+    { name: 'homePage', type: 'page', urlPath: '/{slug}' },
+    { name: 'invoicePage', type: 'page', urlPath: '/invoices/{slug}' }
   ],
   siteMap: ({ documents, models }) => {
     const pageModels = models.filter((m) => m.type === 'page');
@@ -28,18 +27,18 @@ const config = defineStackbitConfig({
 
         if (modelExtension) {
           const urlPath = modelExtension.urlPath.replace('{slug}', document.slug);
+
           return {
             stableId: document.id,
-            urlPath,
+            urlPath: urlPath,
             document,
-            isHomePage: document.modelName === 'home',
+            isHomePage: document.modelName === 'homePage',
           };
         }
-
         return null;
       })
       .filter(Boolean) as SiteMapEntry[];
-  },
+  }
 });
 
 export default config;
