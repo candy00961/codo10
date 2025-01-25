@@ -1,6 +1,6 @@
 import { createClient } from 'contentful';
 
-const PAGE_CONTENT_TYPE_ID = 'invoice';
+const PAGE_CONTENT_TYPE_ID = 'page';
 const IS_DEV = process.env.NODE_ENV === 'development';
 
 async function getEntries(content_type, queryParams) {
