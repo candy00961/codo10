@@ -18,8 +18,6 @@ const nextConfig = {
     CONTENTFUL_ENVIRONMENT: process.env.CONTENTFUL_ENVIRONMENT || 'master',
   },
   webpack: (config, { isServer }) => {
-    // Enable source maps for debugging
-    config.devtool = 'source-map';
 
     // Add source-map-loader to process source maps
     if (!isServer) {
