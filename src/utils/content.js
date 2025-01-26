@@ -12,7 +12,10 @@ async function getEntries(content_type, queryParams) {
   });
 
   // Construct the query
-  const query = { content_type, ...queryParams, include: 10 };
+  const query = { content_type: 'homePage',
+  'fields.slug': slug, 
+  include: 10,
+                };
   console.log('Query:', query); // Debugging: Log the query
 
   try {
