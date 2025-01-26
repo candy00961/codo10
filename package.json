@@ -24,7 +24,7 @@
     "google-p12-pem": "^4.0.0",
     "puppeteer": "^22.8.2",
     "@eslint/object-schema": "^1.0.0",
-    "@eslint/config-array": "^1.0.0"
+    "@eslint/config-array": "^1.0.0",
   },
   "devDependencies": {
     "@stackbit/cms-contentful": "^1.0.0",
