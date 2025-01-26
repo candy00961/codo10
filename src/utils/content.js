@@ -9,7 +9,10 @@ async function getEntries(content_type, queryParams) {
     space: process.env.CONTENTFUL_SPACE_ID,
     host: IS_DEV ? 'preview.contentful.com' : 'cdn.contentful.com',
   });
-
+  // Ensure content_type is passed correctly
+  const query = { content_type, ...queryParams, include: 10 };
+  console.log('Query:', query); // Debugging: Log the query
+  
   const entries = await client.getEntries({ content_type, ...queryParams, include: 10 });
   return entries;
 }
