@@ -13,15 +13,15 @@ async function getEntries(content_type, queryParams = {}) {
 
   // Construct the query
   const query = { content_type, ...queryParams, include: 10 };
-  console.log('Query:', query); // Debugging: Log the query
+  console.log('Query:', JSON.stringify(query, null, 2)); // Debugging: Log the query in a readable format
 
   try {
     // Fetch entries from Contentful
     const entries = await client.getEntries(query);
-    console.log('Entries fetched successfully:', entries.items.length); // Debugging: Log the number of entries fetched
+    console.log(`Entries fetched successfully for content type "${content_type}":`, entries.items.length); // Debugging: Log the number of entries fetched
     return entries;
   } catch (error) {
-    console.error('Error fetching entries:', error); // Debugging: Log the error
+    console.error('Error fetching entries:', JSON.stringify(error, null, 2)); // Debugging: Log the full error object
     return { items: [] }; // Return an empty object with an items array to avoid destructuring errors
   }
 }
@@ -34,7 +34,7 @@ export async function getPagePaths() {
       return slug.startsWith('/') ? slug : `/${slug}`;
     });
   } catch (error) {
-    console.error('Error fetching page paths:', error);
+    console.error('Error fetching page paths:', JSON.stringify(error, null, 2)); // Debugging: Log the full error object
     return [];
   }
 }
@@ -47,18 +47,20 @@ export async function getPageFromSlug(slug) {
 
     // If page is not found, try removing the leading slash
     if (!page && slug !== '/' && slug.startsWith('/')) {
-      console.log('Trying slug without leading slash:', slug.slice(1)); // Debugging: Log the modified slug
+      console.log('Page not found with leading slash. Trying slug without leading slash:', slug.slice(1)); // Debugging: Log the modified slug
       const { items } = await getEntries(PAGE_CONTENT_TYPE_ID, { 'fields.slug': slug.slice(1) });
       page = (items ?? [])[0];
     }
 
     if (!page) {
-      throw new Error(`Page not found for slug: ${slug}`);
+      const errorMessage = `Page not found for slug: ${slug}`;
+      console.error(errorMessage); // Debugging: Log the error message
+      throw new Error(errorMessage);
     }
 
     return mapEntry(page);
   } catch (error) {
-    console.error('Error fetching page from slug:', error);
+    console.error('Error fetching page from slug:', JSON.stringify(error, null, 2)); // Debugging: Log the full error object
     throw error; // Re-throw the error to handle it in the calling function
   }
 }
