@@ -1,6 +1,6 @@
 import { createClient } from 'contentful';
 
-const PAGE_CONTENT_TYPE_ID = 'homepage'; // Ensure this matches your Contentful content type
+const PAGE_CONTENT_TYPE_ID = 'homePage'; // Updated to match the content type ID in Contentful
 const IS_DEV = process.env.NODE_ENV === 'development';
 
 async function getEntries(content_type, queryParams) {
@@ -12,10 +12,7 @@ async function getEntries(content_type, queryParams) {
   });
 
   // Construct the query
-  const query = { content_type: 'homePage',
-  'fields.slug': slug, 
-  include: 10,
-                };
+  const query = { content_type, ...queryParams, include: 10 };
   console.log('Query:', query); // Debugging: Log the query
 
   try {
