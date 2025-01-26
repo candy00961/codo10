@@ -3,6 +3,9 @@ const PAGE_CONTENT_TYPE_ID = 'homePage'; // Updated to match the content type ID
 const IS_DEV = process.env.NODE_ENV === 'development';
 
 async function getEntries(content_type, queryParams = {}) {
+  // Your code for getEntries function
+}
+
 export async function getPageFromSlug(slug) {
   try {
     console.log('Fetching page for slug:', slug); // Debugging: Log the slug
