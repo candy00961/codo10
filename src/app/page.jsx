@@ -11,7 +11,7 @@ const componentMap = {
 export default async function ComposablePage({ params }) {
   // Handle potential missing or incorrect params
   const pageSlug = Array.isArray(params?.slug) ? params.slug.join('/') : params.slug || '';
-
+  console.log('Page Slug:', pageSlug); // Debugging: Log the slug
   try {
     const page = await getPageFromSlug(pageSlug);
 
