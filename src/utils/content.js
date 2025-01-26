@@ -1,9 +1,42 @@
 import { createClient } from 'contentful';
-const PAGE_CONTENT_TYPE_ID = 'homePage'; // Updated to match the content type ID in Contentful
+
+const PAGE_CONTENT_TYPE_ID = 'homepage'; // Ensure this matches your Contentful content type
 const IS_DEV = process.env.NODE_ENV === 'development';
 
 async function getEntries(content_type, queryParams = {}) {
-  // Your code for getEntries function
+  // Initialize Contentful client
+  const client = createClient({
+    accessToken: IS_DEV ? process.env.CONTENTFUL_PREVIEW_TOKEN : process.env.CONTENTFUL_DELIVERY_TOKEN,
+    space: process.env.CONTENTFUL_SPACE_ID,
+    host: IS_DEV ? 'preview.contentful.com' : 'cdn.contentful.com',
+  });
+
+  // Construct the query
+  const query = { content_type, ...queryParams, include: 10 };
+  console.log('Query:', query); // Debugging: Log the query
+
+  try {
+    // Fetch entries from Contentful
+    const entries = await client.getEntries(query);
+    console.log('Entries fetched successfully:', entries.items.length); // Debugging: Log the number of entries fetched
+    return entries;
+  } catch (error) {
+    console.error('Error fetching entries:', error); // Debugging: Log the error
+    return { items: [] }; // Return an empty object with an items array to avoid destructuring errors
+  }
+}
+
+export async function getPagePaths() {
+  try {
+    const { items } = await getEntries(PAGE_CONTENT_TYPE_ID);
+    return items.map((page) => {
+      const slug = page.fields.slug;
+      return slug.startsWith('/') ? slug : `/${slug}`;
+    });
+  } catch (error) {
+    console.error('Error fetching page paths:', error);
+    return [];
+  }
 }
 
 export async function getPageFromSlug(slug) {
