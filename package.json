@@ -19,6 +19,12 @@
      "axios": "latest",
      "next-sitemap":"latest",
     "@netlify/plugin-lighthouse": "6.0.1",
+    "intl-messageformat-parser": "^6.0.0",
+    "string-similarity": "^4.0.0",
+    "google-p12-pem": "^4.0.0",
+    "puppeteer": "^22.8.2",
+    "@eslint/object-schema": "^1.0.0",
+    "@eslint/config-array": "^1.0.0"
   },
   "devDependencies": {
     "@stackbit/cms-contentful": "^1.0.0",
@@ -32,12 +38,6 @@
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.3",
     "source-map-loader": "^4.0.2"
-    "intl-messageformat-parser": "^6.0.0",
-    "string-similarity": "^4.0.0",
-    "google-p12-pem": "^4.0.0",
-    "puppeteer": "^22.8.2",
-    "@eslint/object-schema": "^1.0.0",
-    "@eslint/config-array": "^1.0.0"
   }
 
 }
