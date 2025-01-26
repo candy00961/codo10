@@ -1,6 +1,6 @@
 import { createClient } from 'contentful';
 
-const PAGE_CONTENT_TYPE_ID = 'homePage'; // Updated to match the content type ID in Contentful
+const PAGE_CONTENT_TYPE_ID = 'homepage'; // Ensure this matches your Contentful content type
 const IS_DEV = process.env.NODE_ENV === 'development';
 
 async function getEntries(content_type, queryParams = {}) {
@@ -42,15 +42,12 @@ export async function getPagePaths() {
 export async function getPageFromSlug(slug) {
   try {
     console.log('Fetching page for slug:', slug); // Debugging: Log the slug
-    const { items } = await getEntries(PAGE_CONTENT_TYPE_ID, { 'fields.slug': slug });
-    let page = (items ?? [])[0];
 
-    // If page is not found, try removing the leading slash
-    if (!page && slug !== '/' && slug.startsWith('/')) {
-      console.log('Trying slug without leading slash:', slug.slice(1)); // Debugging: Log the modified slug
-      const { items } = await getEntries(PAGE_CONTENT_TYPE_ID, { 'fields.slug': slug.slice(1) });
-      page = (items ?? [])[0];
-    }
+    // Remove leading slash if present
+    const cleanedSlug = slug.startsWith('/') ? slug.slice(1) : slug;
+
+    const { items } = await getEntries(PAGE_CONTENT_TYPE_ID, { 'fields.slug': cleanedSlug });
+    let page = (items ?? [])[0];
 
     if (!page) {
       throw new Error(`Page not found for slug: ${slug}`);
