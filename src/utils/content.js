@@ -1,6 +1,6 @@
 import { createClient } from 'contentful';
 
-const PAGE_CONTENT_TYPE_ID = 'homepage'; // Ensure this matches your Contentful content type
+const PAGE_CONTENT_TYPE_ID = 'homePage'; // Ensure this matches your Contentful content type
 const IS_DEV = process.env.NODE_ENV === 'development';
 
 async function getEntries(content_type, queryParams = {}) {
