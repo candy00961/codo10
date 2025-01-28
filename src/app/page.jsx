@@ -9,13 +9,18 @@ const componentMap = {
 };
 
 export default async function ComposablePage({ params }) {
-  // Handle potential missing or incorrect params
   const pageSlug = Array.isArray(params?.slug) ? params.slug.join('/') : params.slug || '';
-  console.log('Page Slug:', pageSlug); // Debugging: Log the slug
+  if (!pageSlug) {
+    console.error('Page Slug is undefined or invalid');
+    return notFound();
+  }
+  console.log('Page Slug:', pageSlug);
+
   try {
     const page = await getPageFromSlug(pageSlug);
 
     if (!page) {
+      console.error(`Page not found for slug: ${pageSlug}`);
       return notFound();
     }
 
@@ -28,8 +33,7 @@ export default async function ComposablePage({ params }) {
       </div>
     );
   } catch (error) {
-    console.error('Error fetching page data:', error);
+    console.error('Error fetching page data:', error.message, error.stack);
     return notFound();
   }
 }
-
