@@ -14,7 +14,7 @@ const config = defineStackbitConfig({
     }),
   ],
   modelExtensions: [
-   { name: 'homePage', type: 'page', urlPath: '/homePage/HomePage' },
+   { name: 'homePage', type: 'page', urlPath: '/home/{slug}' },
     { name: 'invoice', type: 'page', urlPath: '/home/invoice/{slug}' }
   ],
   siteMap: ({ documents, models }) => {
