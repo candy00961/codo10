@@ -21,7 +21,7 @@ async function getEntries(content_type, queryParams = {}) {
     console.log(`Entries fetched successfully for content type "${content_type}":`, entries.items.length); // Debugging: Log the number of entries fetched
     return entries;
   } catch (error) {
-    console.error('Error fetching entries:', JSON.stringify(error, null, 2)); // Debugging: Log the full error object
+    console.error('Error fetching entries:', error.message, error.stack); // Debugging: Log the full error object
     return { items: [] }; // Return an empty object with an items array to avoid destructuring errors
   }
 }
@@ -34,7 +34,7 @@ export async function getPagePaths() {
       return slug.startsWith('/') ? slug : `/${slug}`;
     });
   } catch (error) {
-    console.error('Error fetching page paths:', JSON.stringify(error, null, 2)); // Debugging: Log the full error object
+    console.error('Error fetching page paths:', error.message, error.stack); // Debugging: Log the full error object
     return [];
   }
 }
@@ -60,7 +60,7 @@ export async function getPageFromSlug(slug) {
 
     return mapEntry(page);
   } catch (error) {
-    console.error('Error fetching page from slug:', JSON.stringify(error, null, 2)); // Debugging: Log the full error object
+    console.error('Error fetching page from slug:', error.message, error.stack); // Debugging: Log the full error object
     throw error; // Re-throw the error to handle it in the calling function
   }
 }
