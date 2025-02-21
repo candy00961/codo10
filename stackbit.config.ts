@@ -1,9 +1,9 @@
 import { ContentfulContentSource } from '@stackbit/cms-contentful';
-import { defineStackbitConfig, SiteMapEntry } from "@stackbit/types";
+import { defineStackbitConfig } from '@stackbit/types';
 
-const config = defineStackbitConfig({
+export default defineStackbitConfig({
   stackbitVersion: '~0.6.0',
-  ssgName: 'nextjs',
+  ssgName: 'next',
   nodeVersion: '20.18.1',
   contentSources: [
     new ContentfulContentSource({
@@ -14,8 +14,9 @@ const config = defineStackbitConfig({
     }),
   ],
   modelExtensions: [
-   { name: 'homePage', type: 'page', urlPath: '/home/{slug}' },
-    { name: 'invoice', type: 'page', urlPath: '/home/invoice/{slug}' }
+    { name: 'homePage', type: 'page', urlPath: '/{slug}' },
+    { name: 'page', type: 'page', urlPath: '/{slug}' },
+    { name: 'invoice', type: 'page', urlPath: '/invoice/{slug}' },
   ],
   siteMap: ({ documents, models }) => {
     const pageModels = models.filter((m) => m.type === 'page');
@@ -24,21 +25,17 @@ const config = defineStackbitConfig({
       .filter((d) => pageModels.some((m) => m.name === d.modelName))
       .map((document) => {
         const modelExtension = pageModels.find((m) => m.name === document.modelName);
-
         if (modelExtension) {
-          const urlPath = modelExtension.urlPath.replace('{slug}', document.slug);
-
+          const urlPath = modelExtension.urlPath.replace('{slug}', document.fields.slug['en-US'] || '');
           return {
             stableId: document.id,
-            urlPath: urlPath,
+            urlPath,
             document,
-            isHomePage: document.modelName === 'homePage',
+            isHomePage: document.modelName === 'page' && urlPath === '/',
           };
         }
         return null;
       })
-      .filter(Boolean) as SiteMapEntry[];
-  }
+      .filter(Boolean);
+  },
 });
-
-export default config;
