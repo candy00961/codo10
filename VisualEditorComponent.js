@@ -1,4 +1,5 @@
 'use client';
+
 import { useContentfulLivePreview, ContentfulLivePreview } from '@contentful/live-preview';
 import { useEffect, useState } from 'react';
 
@@ -6,11 +7,13 @@ function VisualEditorComponent({ entryId, fieldId, locale = 'en-US' }) {
   const [liveContent, setLiveContent] = useState(null);
 
   useEffect(() => {
+    // Initialize Contentful Live Preview
     ContentfulLivePreview.init({
       space: process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID,
       accessToken: process.env.NEXT_PUBLIC_CONTENTFUL_PREVIEW_TOKEN,
       enableLiveUpdates: true,
-    });
+    }).catch((err) => console.error('Live Preview init failed:', err));
+
     console.log('[VisualEditorComponent] Initializing with:', { entryId, fieldId, locale });
     const subscription = useContentfulLivePreview.subscribe({
       entryId,
@@ -21,6 +24,7 @@ function VisualEditorComponent({ entryId, fieldId, locale = 'en-US' }) {
         setLiveContent(data);
       },
     });
+
     return () => subscription.unsubscribe();
   }, [entryId, fieldId, locale]);
 
