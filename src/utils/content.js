@@ -45,10 +45,16 @@ async function getEntries(contentTypes, queryParams = {}) {
 export async function getPagePaths() {
   try {
     const { items } = await getEntries(PAGE_CONTENT_TYPES);
-    return items.map((page) => {
-      const slug = page.fields.slug['en-US'];
-      return slug.startsWith('/') ? slug : `/${slug}`;
-    });
+    return items
+      .map((page) => {
+        const slug = page.fields.slug?.['en-US'];
+        if (!slug || typeof slug !== 'string') {
+          console.warn(`Skipping entry with invalid slug: ${page.sys.id}`);
+          return null;
+        }
+        return slug.startsWith('/') ? slug : `/${slug}`;
+      })
+      .filter(Boolean); // Remove null entries
   } catch (error) {
     console.error('Error fetching page paths:', error.message);
     return [];
