@@ -1,70 +1,100 @@
 import { createClient } from 'contentful';
 
-const PAGE_CONTENT_TYPE_ID = 'homePage'; // Ensure this matches your Contentful content type
+// Define supported page-like content types
+const PAGE_CONTENT_TYPES = ['homePage', 'page', 'invoice'];
 const IS_DEV = process.env.NODE_ENV === 'development';
 
-async function getEntries(content_type, queryParams = {}) {
-  // Initialize Contentful client
-  const client = createClient({
-    accessToken: IS_DEV ? process.env.CONTENTFUL_PREVIEW_TOKEN : process.env.CONTENTFUL_DELIVERY_TOKEN,
-    space: process.env.CONTENTFUL_SPACE_ID,
-    host: IS_DEV ? 'preview.contentful.com' : 'cdn.contentful.com',
-  });
+// Initialize Contentful client (shared instance for performance)
+const client = createClient({
+  accessToken: IS_DEV
+    ? process.env.CONTENTFUL_PREVIEW_TOKEN || process.env.CONTENTFUL_DELIVERY_TOKEN
+    : process.env.CONTENTFUL_DELIVERY_TOKEN,
+  space: process.env.CONTENTFUL_SPACE_ID,
+  host: IS_DEV ? 'preview.contentful.com' : 'cdn.contentful.com',
+});
 
-  // Construct the query
-  const query = { content_type, ...queryParams, include: 10 };
-  console.log('Query:', JSON.stringify(query, null, 2)); // Debugging: Log the query in a readable format
+/**
+ * Fetch entries from Contentful for given content types
+ * @param {string|string[]} contentTypes - Single or array of content type IDs
+ * @param {object} queryParams - Additional query parameters
+ * @returns {Promise<object>} - Entries response
+ */
+async function getEntries(contentTypes, queryParams = {}) {
+  const types = Array.isArray(contentTypes) ? contentTypes.join(',') : contentTypes;
+  const query = {
+    'sys.contentType.sys.id[in]': types, // Support multiple content types
+    ...queryParams,
+    include: 10,
+  };
+  console.log('Query:', JSON.stringify(query, null, 2));
 
   try {
-    // Fetch entries from Contentful
     const entries = await client.getEntries(query);
-    console.log(`Entries fetched successfully for content type "${content_type}":`, entries.items.length); // Debugging: Log the number of entries fetched
+    console.log(`Entries fetched successfully for content types "${types}": ${entries.items.length}`);
     return entries;
   } catch (error) {
-    console.error('Error fetching entries:', error.message, error.stack); // Debugging: Log the full error object
-    return { items: [] }; // Return an empty object with an items array to avoid destructuring errors
+    console.error('Error fetching entries:', error.message);
+    throw error; // Propagate error for explicit handling
   }
 }
 
+/**
+ * Get all page paths for static generation
+ * @returns {Promise<string[]>} - Array of slug paths
+ */
 export async function getPagePaths() {
   try {
-    const { items } = await getEntries(PAGE_CONTENT_TYPE_ID);
+    const { items } = await getEntries(PAGE_CONTENT_TYPES);
     return items.map((page) => {
-      const slug = page.fields.slug;
+      const slug = page.fields.slug['en-US'];
       return slug.startsWith('/') ? slug : `/${slug}`;
     });
   } catch (error) {
-    console.error('Error fetching page paths:', error.message, error.stack); // Debugging: Log the full error object
+    console.error('Error fetching page paths:', error.message);
     return [];
   }
 }
 
+/**
+ * Fetch a page by slug, supporting multiple content types
+ * @param {string} slug - The slug to look up
+ * @returns {Promise<object>} - Mapped page data
+ */
 export async function getPageFromSlug(slug) {
-  try {
-    console.log('Fetching page for slug:', slug); // Debugging: Log the slug
-    const { items } = await getEntries(PAGE_CONTENT_TYPE_ID, { 'fields.slug': slug });
-    let page = (items ?? [])[0];
+  const effectiveSlug = slug || '/'; // Default to root if undefined
+  console.log('Fetching page for slug:', effectiveSlug);
 
-    // If page is not found, try removing the leading slash
-    if (!page && slug !== '/' && slug.startsWith('/')) {
-      console.log('Page not found with leading slash. Trying slug without leading slash:', slug.slice(1)); // Debugging: Log the modified slug
-      const { items } = await getEntries(PAGE_CONTENT_TYPE_ID, { 'fields.slug': slug.slice(1) });
-      page = (items ?? [])[0];
+  try {
+    const { items } = await getEntries(PAGE_CONTENT_TYPES, { 'fields.slug': effectiveSlug });
+    let page = items[0];
+
+    // Fallback: Try without leading slash if not found
+    if (!page && effectiveSlug !== '/' && effectiveSlug.startsWith('/')) {
+      console.log('Page not found with leading slash. Trying:', effectiveSlug.slice(1));
+      const { items: fallbackItems } = await getEntries(PAGE_CONTENT_TYPES, {
+        'fields.slug': effectiveSlug.slice(1),
+      });
+      page = fallbackItems[0];
     }
 
     if (!page) {
-      const errorMessage = `Page not found for slug: ${slug}`;
-      console.error(errorMessage); // Debugging: Log the error message
+      const errorMessage = `Page not found for slug: ${effectiveSlug}`;
+      console.error(errorMessage);
       throw new Error(errorMessage);
     }
 
     return mapEntry(page);
   } catch (error) {
-    console.error('Error fetching page from slug:', error.message, error.stack); // Debugging: Log the full error object
-    throw error; // Re-throw the error to handle it in the calling function
+    console.error('Error fetching page from slug:', error.message);
+    throw error;
   }
 }
 
+/**
+ * Map a Contentful entry to a simplified object
+ * @param {object} entry - Raw Contentful entry
+ * @returns {object} - Mapped entry
+ */
 function mapEntry(entry) {
   const id = entry.sys?.id;
   const type = entry.sys?.contentType?.sys?.id || entry.sys?.type;
@@ -73,19 +103,27 @@ function mapEntry(entry) {
     return {
       id,
       type,
-      src: `https:${entry.fields.file.url}`,
-      alt: entry.fields.title,
+      src: `https:${entry.fields.file['en-US'].url}`,
+      alt: entry.fields.title['en-US'],
     };
   }
 
   return {
     id,
     type,
-    ...Object.fromEntries(Object.entries(entry.fields).map(([key, value]) => [key, parseField(value)])),
+    ...Object.fromEntries(
+      Object.entries(entry.fields).map(([key, value]) => [key, parseField(value['en-US'])]),
+    ),
   };
 }
 
+/**
+ * Parse field values, handling nested entries and arrays
+ * @param {*} value - Field value from Contentful
+ * @returns {*} - Parsed value
+ */
 function parseField(value) {
+  if (!value) return null;
   if (typeof value === 'object' && value.sys) return mapEntry(value);
   if (Array.isArray(value)) return value.map(mapEntry);
   return value;
