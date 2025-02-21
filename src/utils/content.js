@@ -1,8 +1,10 @@
 import { createClient } from 'contentful';
 
+// Define supported page-like content types
 const PAGE_CONTENT_TYPES = ['homePage', 'page', 'invoice'];
 const IS_DEV = process.env.NODE_ENV === 'development';
 
+// Initialize Contentful client
 const client = createClient({
   accessToken: IS_DEV
     ? process.env.CONTENTFUL_PREVIEW_TOKEN || process.env.CONTENTFUL_DELIVERY_TOKEN
@@ -11,6 +13,9 @@ const client = createClient({
   host: IS_DEV ? 'preview.contentful.com' : 'cdn.contentful.com',
 });
 
+/**
+ * Fetch entries from Contentful for given content types
+ */
 async function getEntries(contentTypes, queryParams = {}) {
   const types = Array.isArray(contentTypes) ? contentTypes.join(',') : contentTypes;
   const query = {
@@ -30,6 +35,9 @@ async function getEntries(contentTypes, queryParams = {}) {
   }
 }
 
+/**
+ * Get all page paths for static generation
+ */
 export async function getPagePaths() {
   try {
     const { items } = await getEntries(PAGE_CONTENT_TYPES);
@@ -57,6 +65,9 @@ export async function getPagePaths() {
   }
 }
 
+/**
+ * Fetch a page by slug, supporting multiple content types
+ */
 export async function getPageFromSlug(slug) {
   const effectiveSlug = slug || '/';
   console.log('Fetching page for slug:', effectiveSlug);
@@ -86,6 +97,9 @@ export async function getPageFromSlug(slug) {
   }
 }
 
+/**
+ * Map a Contentful entry to a simplified object
+ */
 function mapEntry(entry) {
   const id = entry.sys?.id;
   const type = entry.sys?.contentType?.sys?.id || entry.sys?.type;
@@ -95,7 +109,7 @@ function mapEntry(entry) {
       id,
       type,
       src: `https:${entry.fields.file['en-US'].url}`,
-      alt: entry.fields.title['en-US'],
+      alt: entry.fields.title?.['en-US'] || '',
     };
   }
 
@@ -108,6 +122,9 @@ function mapEntry(entry) {
   };
 }
 
+/**
+ * Parse field values, handling nested entries and arrays
+ */
 function parseField(value) {
   if (!value) return null;
   if (typeof value === 'object' && value.sys) return mapEntry(value);
