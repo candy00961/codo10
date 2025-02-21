@@ -3,12 +3,12 @@ import { defineStackbitConfig } from '@stackbit/types';
 
 export default defineStackbitConfig({
   stackbitVersion: '~0.6.0',
-  ssgName: 'nextjs', // Fixed from 'next' to 'nextjs'
+  ssgName: 'nextjs',
   nodeVersion: '20.18.1',
-  devCommand: 'npm run dev', // Explicitly set dev command
+  devCommand: 'npm run dev',
   contentSources: [
     new ContentfulContentSource({
-      spaceId: process.env.CONTENTFUL_SPACE_ID,
+      spaceId: process.env.CONTENTFUL_SPACE_ID || 'ckfxurkvy1l5',
       environment: process.env.CONTENTFUL_ENVIRONMENT || 'master',
       previewToken: process.env.CONTENTFUL_PREVIEW_TOKEN,
       accessToken: process.env.CONTENTFUL_MANAGEMENT_TOKEN,
@@ -17,9 +17,10 @@ export default defineStackbitConfig({
   modelExtensions: [
     { name: 'homePage', type: 'page', urlPath: '/{slug}' },
     { name: 'page', type: 'page', urlPath: '/{slug}' },
-    { name: 'invoice', type: 'page', urlPath: '/invoice/{slug}' }, // Future-proofing
   ],
   siteMap: ({ documents, models }) => {
+    console.log('Models loaded:', models.map(m => m.name));
+    console.log('Documents loaded:', documents.map(d => ({ id: d.id, modelName: d.modelName, slug: d.fields.slug?.['en-US'] })));
     const pageModels = models.filter((m) => m.type === 'page');
 
     return documents
