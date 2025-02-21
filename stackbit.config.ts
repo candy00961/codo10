@@ -3,8 +3,9 @@ import { defineStackbitConfig } from '@stackbit/types';
 
 export default defineStackbitConfig({
   stackbitVersion: '~0.6.0',
-  ssgName: 'next',
+  ssgName: 'nextjs', // Fixed from 'next' to 'nextjs'
   nodeVersion: '20.18.1',
+  devCommand: 'npm run dev', // Explicitly set dev command
   contentSources: [
     new ContentfulContentSource({
       spaceId: process.env.CONTENTFUL_SPACE_ID,
@@ -16,7 +17,7 @@ export default defineStackbitConfig({
   modelExtensions: [
     { name: 'homePage', type: 'page', urlPath: '/{slug}' },
     { name: 'page', type: 'page', urlPath: '/{slug}' },
-    { name: 'invoice', type: 'page', urlPath: '/invoice/{slug}' },
+    { name: 'invoice', type: 'page', urlPath: '/invoice/{slug}' }, // Future-proofing
   ],
   siteMap: ({ documents, models }) => {
     const pageModels = models.filter((m) => m.type === 'page');
