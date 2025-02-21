@@ -1,33 +1,65 @@
-#!/usr/bin/env node
+import { notFound } from 'next/navigation';
+import { Hero } from '../../components/Hero.jsx';
+import { Stats } from '../../components/Stats.jsx';
+import { getPageFromSlug } from '../../utils/content.js';
 
-const path = require('path');
-const contentfulImport = require('contentful-import');
-const dotenv = require('dotenv');
-
-dotenv.config();
-
-const managementToken = process.env.CONTENTFUL_MANAGEMENT_TOKEN || process.argv[2];
-const spaceId = process.env.CONTENTFUL_SPACE_ID || process.argv[3];
-
-if (!managementToken || !spaceId) {
-  console.error(
-    'Contentful management token or space ID were not provided.\n\nUsage:\n./export.js <managementToken> <spaceId>\n',
+// Placeholder Invoice component (create this in your project)
+function Invoice({ invoiceNumber, amount, dueDate, clientName }) {
+  return (
+    <div>
+      <h2>Invoice: {invoiceNumber}</h2>
+      <p>Amount: ${amount}</p>
+      <p>Due: {new Date(dueDate).toLocaleDateString()}</p>
+      <p>Client: {clientName}</p>
+    </div>
   );
-  process.exit(1);
 }
 
-const options = {
-  contentFile: path.join(__dirname, 'export.json'),
-  spaceId: spaceId,
-  managementToken: managementToken,
-  uploadAssets: true,
-  assetsDirectory: __dirname,
+const componentMap = {
+  hero: Hero,
+  stats: Stats,
+  invoice: Invoice,
 };
 
-contentfulImport(options)
-  .then(() => {
-    console.log('Data imported successfully');
-  })
-  .catch((error) => {
-    console.error('Error importing content:', error);
-  });
+export default async function ComposablePage({ params }) {
+  const slug = params.slug ? params.slug.join('/') : ''; // Avoid prepending / here; content.js handles it
+
+  try {
+    const page = await getPageFromSlug(slug);
+
+    // If page is an invoice, render it directly
+    if (page.type === 'invoice') {
+      return (
+        <div data-sb-object-id={page.id}>
+          <Invoice {...page} />
+        </div>
+      );
+    }
+
+    // Otherwise, render page sections (e.g., homePage or page)
+    return (
+      <div data-sb-object-id={page.id}>
+        {(page.sections || []).map((section, idx) => {
+          const Component = componentMap[section.type];
+          if (!Component) {
+            console.warn(`No component mapped for section type: ${section.type}`);
+            return null;
+          }
+          return <Component key={idx} {...section} data-sb-object-id={section.id} />;
+        })}
+      </div>
+    );
+  } catch (error) {
+    console.error('Error rendering page:', error);
+    return notFound();
+  }
+}
+
+// Optional: Static generation for known paths
+export async function generateStaticParams() {
+  const { getPagePaths } = await import('../../utils/content.js');
+  const paths = await getPagePaths();
+  return paths.map((path) => ({
+    slug: path.split('/').filter(Boolean), // Convert '/invoice/inv-001' to ['invoice', 'inv-001']
+  }));
+}
