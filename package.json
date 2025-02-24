@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lintt",
-    "postbuild": "next-sitemap"
+
   },
   "dependencies": {
     "contentful": "^10.15.1",
