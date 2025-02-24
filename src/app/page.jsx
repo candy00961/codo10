@@ -16,7 +16,9 @@ export default async function Page({ params }) {
 }
 
 // Example fetch function (adjust based on your setup)
-async function fetchPageData(slug) {
+async function fetchPageData(pageSlug) {
   // Fetch from Contentful or your CMS using the slug
+  // Use the slug variable here
+  console.log('Fetching data for slug:', pageSlug);
   // Return null if no page is found
 }
