@@ -1,4 +1,3 @@
-import Markdown from 'markdown-to-jsx';
 import Image from 'next/image';
 import { Button } from './Button.jsx';
 
