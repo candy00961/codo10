@@ -1,6 +1,7 @@
 [build]
   command = "cd codo10 && npm run build"
   publish = "codo10/.next"
+  environment = { NODE_VERSION = "20.18.3" }
 
 [images]
   remote_images = [
