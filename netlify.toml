@@ -1,5 +1,5 @@
 [build]
-  base = "codo10/"         # Set to the subdirectory where your Next.js project is located
+  base = "codo10"         # Set to the subdirectory where your Next.js project is located
   command = "npm run build" # Runs from /codo10/
   publish = ".next"        # Relative to base, so /codo10/.next
 
