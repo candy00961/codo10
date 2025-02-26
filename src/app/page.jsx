@@ -53,7 +53,7 @@ async function fetchPageData(pageSlug, isPreview = false) {
 
   try {
     const response = await client.getEntries({
-      content_type: 'page',
+      content_type: 'homePage',
       'fields.slug': pageSlug,
       include: 2,
     });
