@@ -1,7 +1,7 @@
 'use client';
 
 export default function GlobalError({ error }) {
-  console.error('Global error occurred:', error);
+  // console.error('Global error occurred:', error);
   return (
     <html>
       <body>
