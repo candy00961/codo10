@@ -1,65 +1,77 @@
 import { notFound } from 'next/navigation';
+import { createClient } from 'contentful';
 import { Hero } from '../../components/Hero.jsx';
 import { Stats } from '../../components/Stats.jsx';
-import { getPageFromSlug } from '../../utils/content.js';
 
-// Placeholder Invoice component (create this in your project)
-function Invoice({ invoiceNumber, amount, dueDate, clientName }) {
+// Map Contentful section types to React components
+const componentMap = {
+  hero: Hero,
+  stats: Stats,
+  // Add more mappings as needed, e.g., 'feature': FeatureComponent
+};
+
+export default async function Page({ params, searchParams }) {
+  // Safely access searchParams.preview with a fallback
+  const isPreview = searchParams?.preview === 'true' || false;
+
+  // Handle pageSlug from params
+  const pageSlug = Array.isArray(params?.slug) ? params.slug.join('/') : params.slug || 'home';
+
+  // Fetch page data (assuming this function exists)
+  const pageData = await fetchPageData(pageSlug, isPreview);
+
+  if (!pageData) {
+    return notFound(); // Trigger a 404 if no data is found
+  }
+
+  // Render the page
   return (
-    <div>
-      <h2>Invoice: {invoiceNumber}</h2>
-      <p>Amount: ${amount}</p>
-      <p>Due: {new Date(dueDate).toLocaleDateString()}</p>
-      <p>Client: {clientName}</p>
+    <div data-sb-object-id={pageData.sys.id}>
+      {(pageData.fields.sections || []).map((section, idx) => {
+        const Component = componentMap[section.type];
+        if (!Component) {
+          if (process.env.NODE_ENV === 'development') {
+            // console.warn(`No component found for section type: ${section.type}`);
+          }
+          return null;
+        }
+        return (
+          <Component
+            key={idx}
+            {...section}
+            id={section.sys?.id || `${pageData.sys.id}-${idx}`}
+          />
+        );
+      })}
     </div>
   );
 }
 
-const componentMap = {
-  hero: Hero,
-  stats: Stats,
-  invoice: Invoice,
-};
+// Fetch page data from Contentful
+async function fetchPageData(pageSlug, isPreview = false) {
+  const accessToken = isPreview
+    ? process.env.NEXT_PUBLIC_CONTENTFUL_PREVIEW_TOKEN
+    : process.env.CONTENTFUL_DELIVERY_TOKEN;
 
-export default async function ComposablePage({ params }) {
-  const slug = params.slug ? params.slug.join('/') : ''; // Avoid prepending / here; content.js handles it
+  const client = createClient({
+    space: process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID,
+    accessToken,
+  });
 
   try {
-    const page = await getPageFromSlug(slug);
+    const response = await client.getEntries({
+      content_type: 'homePage', // Must match Contentful content type
+      'fields.slug': pageSlug,
+      include: 2, // Fetch linked entries (e.g., sections)
+    });
 
-    // If page is an invoice, render it directly
-    if (page.type === 'invoice') {
-      return (
-        <div data-sb-object-id={page.id}>
-          <Invoice {...page} />
-        </div>
-      );
+    if (response.items.length === 0) {
+      return null;
     }
 
-    // Otherwise, render page sections (e.g., homePage or page)
-    return (
-      <div data-sb-object-id={page.id}>
-        {(page.sections || []).map((section, idx) => {
-          const Component = componentMap[section.type];
-          if (!Component) {
-            console.warn(`No component mapped for section type: ${section.type}`);
-            return null;
-          }
-          return <Component key={idx} {...section} data-sb-object-id={section.id} />;
-        })}
-      </div>
-    );
+    return response.items[0];
   } catch (error) {
-    console.error('Error rendering page:', error);
-    return notFound();
+    // console.error(`Error fetching page data for slug "${pageSlug}":`, error);
+    return null;
   }
-}
-
-// Optional: Static generation for known paths
-export async function generateStaticParams() {
-  const { getPagePaths } = await import('../../utils/content.js');
-  const paths = await getPagePaths();
-  return paths.map((path) => ({
-    slug: path.split('/').filter(Boolean), // Convert '/invoice/inv-001' to ['invoice', 'inv-001']
-  }));
 }
