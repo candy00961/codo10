@@ -31,6 +31,25 @@ export default defineStackbitConfig({
     }),
   ],
   modelExtensions: [
-    { name: 'homepage', type: 'page', urlPath: '/{slug}' }, // Ensure 'page' matches Contentful content type ID
+    { name: 'homePage', type: 'page', urlPath: '/{slug}' }, // Ensure 'page' matches Contentful content type ID
   ],
+  siteMap: ({ documents, models }) => {
+    const pageModels = models.filter((m) => m.type === 'page');
+    return documents
+      .filter((d) => pageModels.some((m) => m.name === d.modelName))
+      .map((document) => {
+        const modelExtension = pageModels.find((m) => m.name === document.modelName);
+        if (modelExtension) {
+          const urlPath = modelExtension.urlPath.replace('{slug}', document.fields.slug?.['en-US'] || '');
+          return {
+            stableId: document.id,
+            urlPath,
+            document,
+            isHomePage: document.modelName === 'page' && urlPath === '/',
+          };
+        }
+        return null;
+      })
+      .filter(Boolean);
+  },
 });
