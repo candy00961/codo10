@@ -1,5 +1,7 @@
 [build]
- command = "npm run build"  # Run the build from the root
+
+  command = "npm run build"  # Run the build from the root
+
   publish = ".next"          # Next.js output directory
 
 [images]

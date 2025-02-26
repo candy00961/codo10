@@ -31,7 +31,9 @@ export default defineStackbitConfig({
     }),
   ],
   modelExtensions: [
-    { name: 'homepage', type: 'page', urlPath: '/{slug}' }, // Ensure 'page' matches Contentful content type ID
+
+    { name: 'homePage', type: 'page', urlPath: '/{slug}' }, // Ensure 'page' matches Contentful content type ID
+
   ],
   siteMap: ({ documents, models }) => {
     const pageModels = models.filter((m) => m.type === 'page');
