@@ -1,6 +1,7 @@
 [build]
-  command = "npm run build" # Runs from /codo10/
-  publish = ".next"        # Relative to base, so /codo10/.next
+  base = "codo10"
+  command = "cd codo10 && npm run build"
+  publish = "codo10/.next"
 
 [images]
   remote_images = [
