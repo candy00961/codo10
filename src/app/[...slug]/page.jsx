@@ -54,7 +54,7 @@ async function fetchPageData(pageSlug, isPreview = false) {
 
   try {
     const response = await client.getEntries({
-      content_type: 'page', // Must match Contentful content type
+      content_type: 'homePage', // Must match Contentful content type
       'fields.slug': pageSlug,
       include: 2, // Fetch linked entries (e.g., sections)
     });
