@@ -11,32 +11,21 @@ const componentMap = {
 };
 
 export default async function Page({ params, searchParams }) {
-  const isPreview = searchParams?.preview === 'true'; // Enable preview mode
+  // Safely access searchParams.preview with a fallback
+  const isPreview = searchParams?.preview === 'true' || false;
+
+  // Handle pageSlug from params
   const pageSlug = Array.isArray(params?.slug) ? params.slug.join('/') : params.slug || 'home';
+
+  // Fetch page data (assuming this function exists)
   const pageData = await fetchPageData(pageSlug, isPreview);
 
-  if (!pageData) {
-    return notFound();
-  }
-
+  // Render the page
   return (
-    <div data-sb-object-id={pageData.sys.id}>
-      {(pageData.fields.sections || []).map((section, idx) => {
-        const Component = componentMap[section.type];
-        if (!Component) {
-          if (process.env.NODE_ENV === 'development') {
-            console.warn(`No component found for section type: ${section.type}`);
-          }
-          return null;
-        }
-        return (
-          <Component
-            key={idx}
-            {...section}
-            id={section.sys?.id || `${pageData.sys.id}-${idx}`}
-          />
-        );
-      })}
+    <div>
+      <h1>{pageData.title}</h1>
+      <p>{isPreview ? 'Preview Mode' : 'Live Mode'}</p>
+      {/* Add your component content here */}
     </div>
   );
 }
