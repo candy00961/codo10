@@ -1,5 +1,4 @@
 [build]
-  base = "codo10"
   command = "cd codo10 && npm run build"
   publish = "codo10/.next"
 
