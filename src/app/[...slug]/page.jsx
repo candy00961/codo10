@@ -1,4 +1,3 @@
-import { notFound } from 'next/navigation';
 import { createClient } from 'contentful';
 import { Hero } from '../../components/Hero';
 import { Stats } from '../../components/Stats';
@@ -54,7 +53,7 @@ async function fetchPageData(pageSlug, isPreview = false) {
 
     return response.items[0];
   } catch (error) {
-    console.error(`Error fetching page data for slug "${pageSlug}":`, error);
+    // console.error(`Error fetching page data for slug "${pageSlug}":`, error);
     return null;
   }
 }
