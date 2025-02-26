@@ -11,7 +11,7 @@ export async function fetchEntries() {
     const entries = await client.getEntries();
     return entries.items;
   } catch (error) {
-    console.error('Error fetching entries:', error);
+    // console.error('Error fetching entries:', error);
     throw error;
   }
 }
