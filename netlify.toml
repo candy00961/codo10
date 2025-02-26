@@ -1,7 +1,6 @@
 [build]
-  command = "cd codo10 && npm run build"
-  publish = "codo10/.next"
-  environment = { NODE_VERSION = "20.18.3" }
+  command = "npm run build"  # Run the build from the root
+  publish = ".next"          # Next.js output directory
 
 [images]
   remote_images = [
