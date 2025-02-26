@@ -1,17 +1,16 @@
 import { notFound } from 'next/navigation';
 import { createClient } from 'contentful';
-import { Hero } from '../../components/Hero';
-import { Stats } from '../../components/Stats';
+import { Hero } from '../components/Hero.jsx';
+import { Stats } from '../components/Stats.jsx';
 
 // Map Contentful section types to React components
 const componentMap = {
   hero: Hero,
   stats: Stats,
-  // Add more mappings as needed, e.g., 'feature': FeatureComponent
 };
 
 export default async function Page({ params, searchParams }) {
-  const isPreview = searchParams?.preview === 'true'; // Enable preview mode
+  const isPreview = searchParams?.preview === 'true';
   const pageSlug = Array.isArray(params?.slug) ? params.slug.join('/') : params.slug || 'home';
   const pageData = await fetchPageData(pageSlug, isPreview);
 
@@ -54,9 +53,9 @@ async function fetchPageData(pageSlug, isPreview = false) {
 
   try {
     const response = await client.getEntries({
-      content_type: 'page', // Must match Contentful content type
+      content_type: 'page',
       'fields.slug': pageSlug,
-      include: 2, // Fetch linked entries (e.g., sections)
+      include: 2,
     });
 
     if (response.items.length === 0) {
