@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { createClient } from 'contentful';
-import { Hero } from '../../components/Hero.jsx';
-import { Stats } from '../../components/Stats.jsx';
+import { Hero } from '../components/Hero.jsx';
+import { Stats } from '../components/Stats.jsx';
 
 // Map Contentful section types to React components
 const componentMap = {
