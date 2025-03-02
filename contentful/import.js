@@ -1,30 +1,23 @@
 import { notFound } from 'next/navigation';
 import { createClient } from 'contentful';
-import { Hero } from '../../components/Hero.jsx';
-import { Stats } from '../../components/Stats.jsx';
+import { Hero } from '../components/Hero.jsx';  // Fixed path
+import { Stats } from '../components/Stats.jsx';  // Fixed path
 
 // Map Contentful section types to React components
 const componentMap = {
   hero: Hero,
   stats: Stats,
-  // Add more mappings as needed, e.g., 'feature': FeatureComponent
 };
 
 export default async function Page({ params, searchParams }) {
-  // Safely access searchParams.preview with a fallback
   const isPreview = searchParams?.preview === 'true' || false;
-
-  // Handle pageSlug from params
   const pageSlug = Array.isArray(params?.slug) ? params.slug.join('/') : params.slug || 'home';
-
-  // Fetch page data (assuming this function exists)
   const pageData = await fetchPageData(pageSlug, isPreview);
 
   if (!pageData) {
-    return notFound(); // Trigger a 404 if no data is found
+    return notFound();
   }
 
-  // Render the page
   return (
     <div data-sb-object-id={pageData.sys.id}>
       {(pageData.fields.sections || []).map((section, idx) => {
@@ -47,7 +40,6 @@ export default async function Page({ params, searchParams }) {
   );
 }
 
-// Fetch page data from Contentful
 async function fetchPageData(pageSlug, isPreview = false) {
   const accessToken = isPreview
     ? process.env.NEXT_PUBLIC_CONTENTFUL_PREVIEW_TOKEN
@@ -60,9 +52,9 @@ async function fetchPageData(pageSlug, isPreview = false) {
 
   try {
     const response = await client.getEntries({
-      content_type: 'homePage', // Must match Contentful content type
+      content_type: 'homePage',
       'fields.slug': pageSlug,
-      include: 2, // Fetch linked entries (e.g., sections)
+      include: 2,
     });
 
     if (response.items.length === 0) {
