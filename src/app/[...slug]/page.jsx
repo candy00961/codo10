@@ -11,9 +11,14 @@ const componentMap = {
 };
 
 export default async function Page({ params, searchParams }) {
-  const isPreview = searchParams?.preview === 'true';
-  const slug = params?.slug;
+  // Wrap searchParams and params in Promise.resolve to satisfy Next.js linting
+  const resolvedSearchParams = await Promise.resolve(searchParams);
+  const resolvedParams = await Promise.resolve(params);
+
+  const isPreview = resolvedSearchParams?.preview === 'true';
+  const slug = resolvedParams?.slug;
   const pageSlug = Array.isArray(slug) ? slug.join('/') : slug || 'home';
+
   const pageData = await fetchPageData(pageSlug, isPreview);
 
   if (!pageData) {
@@ -52,7 +57,7 @@ async function fetchPageData(pageSlug, isPreview = false) {
 
   try {
     const response = await client.getEntries({
-      content_type: 'homePage', // Adjust this if you have multiple content types
+      content_type: 'homePage',
       'fields.slug': pageSlug,
       include: 2,
     });
