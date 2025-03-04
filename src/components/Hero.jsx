@@ -20,7 +20,7 @@ export const Hero = ({ id, heading, body, button, image, theme }) => {
               {body}
             </Markdown>
           )}
-          {button && <Button {...button} />}
+          {button && <Button {...button} data-sb-field-path="button" />}
         </div>
         <div className="w-full aspect-[4/3] flex-1 relative overflow-hidden rounded-md">
           {image && (
