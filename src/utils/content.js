@@ -14,24 +14,14 @@ const client = createClient({
 
 // Fetch all entries from Contentful
 async function getAllEntries() {
-  try {
-    if (!client) throw new Error('Contentful client not initialized - missing access token');
-    const entries = await client.getEntries({
-      include: 10, // Fetch up to 10 levels of linked entries
-    });
-    if (DEBUG) {
-      // console.log('All entries fetched:', entries.items.length);
-      // console.log('Fetched items:', entries.items.map(item => ({
-      //   id: item.sys.id,
-      //   type: item.sys.contentType?.sys.id,
-      //   slug: item.fields.slug?.['en-US'],
-      // })));
-    }
-    return entries;
-  } catch (error) {
-    // console.error('Error fetching all entries:', error.message);
-    return { items: [] }; // Fallback to empty array on error
+  if (!client) throw new Error('Contentful client not initialized - missing access token');
+  const entries = await client.getEntries({
+    include: 10,
+  });
+  if (DEBUG) {
+    console.log('All entries fetched:', entries.items.length);
   }
+  return entries;
 }
 
 // Filter entries by content types and optional query parameters
@@ -45,85 +35,67 @@ async function getEntries(contentTypes, queryParams = {}) {
     return matchesType && matchesSlug;
   });
   if (DEBUG) {
-    // console.log(`Filtered entries for "${contentTypes.join(',')}" with params ${JSON.stringify(queryParams)}: ${filteredItems.length}`);
+    console.log(`Filtered entries for "${contentTypes.join(',')}" with params ${JSON.stringify(queryParams)}: ${filteredItems.length}`);
   }
   return { items: filteredItems };
 }
 
 // Generate static paths from Contentful entries
 export async function getPagePaths() {
-  try {
-    const { items } = await getEntries(PAGE_CONTENT_TYPES);
-    const paths = items
-      .filter(page => {
-        const hasSlugField = 'slug' in page.fields;
-        if (!hasSlugField) {
-          // console.warn(`Skipping entry without slug field: ${page.sys.id} (${page.sys.contentType?.sys.id})`);
-          return false;
+  const { items } = await getEntries(PAGE_CONTENT_TYPES);
+  const paths = items
+    .filter(page => {
+      const hasSlugField = 'slug' in page.fields;
+      if (!hasSlugField && DEBUG) {
+        console.warn(`Skipping entry without slug field: ${page.sys.id} (${page.sys.contentType?.sys.id})`);
+      }
+      return hasSlugField;
+    })
+    .map(page => {
+      const slug = page.fields.slug?.['en-US'];
+      if (!slug || typeof slug !== 'string') {
+        if (DEBUG) {
+          console.warn(`Skipping entry with invalid slug: ${page.sys.id} (${page.sys.contentType?.sys.id})`);
         }
-        return true;
-      })
-      .map(page => {
-        const slug = page.fields.slug?.['en-US'];
-        if (!slug || typeof slug !== 'string') {
-          // console.warn(`Skipping entry with invalid slug: ${page.sys.id} (${page.sys.contentType?.sys.id})`);
-          return null;
-        }
-        return slug.startsWith('/') ? slug : `/${slug}`;
-      })
-      .filter(Boolean);
-    if (DEBUG) {
-      // console.log('Generated paths:', paths);
-    }
-    return paths;
-  } catch (error) {
-    // console.error('Error fetching page paths:', error.message);
-    return [];
+        return null;
+      }
+      return slug.startsWith('/') ? slug : `/${slug}`;
+    })
+    .filter(Boolean);
+  if (DEBUG) {
+    console.log('Generated paths:', paths);
   }
+  return paths;
 }
 
 // Fetch a single page by slug
 export async function getPageFromSlug(slug) {
   const effectiveSlug = slug || '/';
   if (DEBUG) {
-    // console.log('Fetching page for slug:', effectiveSlug);
+    console.log('Fetching page for slug:', effectiveSlug);
   }
 
-  try {
-    const { items } = await getEntries(PAGE_CONTENT_TYPES, { 'fields.slug': effectiveSlug });
-    let page = items[0];
+  const { items } = await getEntries(PAGE_CONTENT_TYPES, { 'fields.slug': effectiveSlug });
+  let page = items[0];
 
-    if (!page && effectiveSlug !== '/' && effectiveSlug.startsWith('/')) {
-      if (DEBUG) {
-        // console.log('Page not found with leading slash. Trying:', effectiveSlug.slice(1));
-      }
-      const { items: fallbackItems } = await getEntries(PAGE_CONTENT_TYPES, {
-        'fields.slug': effectiveSlug.slice(1),
-      });
-      page = fallbackItems[0];
-    }
-
-    if (!page) {
-      if (DEBUG) {
-        // console.log('No page found, listing all entries for debug...');
-        const { items: allItems } = await getAllEntries();
-        // console.log('All available items:', allItems.map(item => ({
-        //   id: item.sys.id,
-        //   type: item.sys.contentType?.sys.id,
-        //   slug: item.fields.slug?.['en-US'],
-        // })));
-      }
-      throw new Error(`Page not found for slug: ${effectiveSlug}`);
-    }
-
+  if (!page && effectiveSlug !== '/' && effectiveSlug.startsWith('/')) {
     if (DEBUG) {
-      // console.log('Page fetched:', { id: page.sys.id, type: page.sys.contentType.sys.id, slug: page.fields.slug['en-US'] });
+      console.log('Page not found with leading slash. Trying:', effectiveSlug.slice(1));
     }
-    return mapEntry(page);
-  } catch (error) {
-    // console.error('Error fetching page from slug:', error.message);
-    throw error;
+    const { items: fallbackItems } = await getEntries(PAGE_CONTENT_TYPES, {
+      'fields.slug': effectiveSlug.slice(1),
+    });
+    page = fallbackItems[0];
   }
+
+  if (!page) {
+    throw new Error(`Page not found for slug: ${effectiveSlug}`);
+  }
+
+  if (DEBUG) {
+    console.log('Page fetched:', { id: page.sys.id, type: page.sys.contentType.sys.id, slug: page.fields.slug['en-US'] });
+  }
+  return mapEntry(page);
 }
 
 // Map Contentful entry to a simplified object
