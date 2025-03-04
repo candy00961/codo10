@@ -14,8 +14,7 @@ export default async function Page({ params, searchParams }) {
   const isPreview = searchParams && searchParams.preview === 'true';
 }
   // Handle pageSlug from params
-  const slug = params && params.slug;
-  const pageSlug = Array.isArray(slug) ? slug.join('/') : slug || 'home';
+  const pageSlug = Array.isArray(params?.slug) ? params.slug.join('/') : params.slug || 'home';
 
   // Fetch page data (assuming this function exists)
   const pageData = await fetchPageData(pageSlug, isPreview);
