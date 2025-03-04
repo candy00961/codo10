@@ -34,11 +34,11 @@ export const Stats = ({ id, heading, body, stats, theme }) => {
 
 const StatItem = ({ value, label, index }) => {
   return (
-    <div data-sb-field-path={`stats[${index}]`}>
-      <div className="mb-3 text-4xl font-bold sm:text-5xl" data-sb-field-path={`stats[${index}]:value`}>
+    <div data-sb-field-path={`stats.${index}`}>
+      <div className="mb-3 text-4xl font-bold sm:text-5xl" data-sb-field-path={`stats.${index}.value`}>
         {value || '0'}
       </div>
-      <div data-sb-field-path={`stats[${index}]:label`}>{label || 'Default Label'}</div>
+      <div data-sb-field-path={`stats.${index}.label`}>{label || 'Default Label'}</div>
     </div>
   );
 };
