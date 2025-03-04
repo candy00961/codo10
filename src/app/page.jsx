@@ -11,8 +11,8 @@ const componentMap = {
 };
 
 export default async function Page({ params, searchParams }) {
-  // Safely access searchParams.preview with a fallback
-  const isPreview = searchParams?.preview === 'true' || false;
+  const isPreview = searchParams && searchParams.preview === 'true';
+}
 
   // Handle pageSlug from params
   const pageSlug = Array.isArray(params?.slug) ? params.slug.join('/') : params.slug || 'home';
