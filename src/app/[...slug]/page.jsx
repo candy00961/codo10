@@ -1,74 +1,82 @@
+// src/app/[...slug]/page.jsx
 import { notFound } from 'next/navigation';
-import { createClient } from 'contentful';
-import { Hero } from '../../components/Hero.jsx';
-import { Stats } from '../../components/Stats.jsx';
+// *** ENSURE THIS IMPORT IS PRESENT AND CORRECT ***
+import { getPageFromSlug } from '../../utils/content.js';
+// *** END ENSURE ***
+import { Hero } from '../../components/Hero.jsx'; // Verify path
+import { Stats } from '../../components/Stats.jsx'; // Verify path
+// Import other section components if needed
 
-// Map Contentful section types to React components
+// Map Contentful Content Type IDs to React components
 const componentMap = {
   hero: Hero,
   stats: Stats,
-  // Add more mappings as needed, e.g., 'feature': FeatureComponent
+  // Add mappings for any other section types
 };
 
-export default async function Page({ params, searchParams }) {
-  // Wrap searchParams and params in Promise.resolve to satisfy Next.js linting
-  const resolvedSearchParams = await Promise.resolve(searchParams);
-  const resolvedParams = await Promise.resolve(params);
-
-  const isPreview = resolvedSearchParams?.preview === 'true';
-  const slug = resolvedParams?.slug;
-  const pageSlug = Array.isArray(slug) ? slug.join('/') : slug || 'home';
-
-  const pageData = await fetchPageData(pageSlug, isPreview);
-
-  if (!pageData) {
-    return notFound();
-  }
-
-  return (
-    <div data-sb-object-id={pageData.sys.id}>
-      {(pageData.fields.sections || []).map((section, idx) => {
-        const Component = componentMap[section.type];
-        if (!Component) {
-          if (process.env.NODE_ENV === 'development') {
-            console.warn(`No component found for section type: ${section.type}`);
-          }
-          return null;
-        }
-        return (
-          <div key={idx} data-sb-field-path={`sections.${idx}`}>
-            <Component {...section} id={section.sys?.id || `${pageData.sys.id}-${idx}`} />
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-async function fetchPageData(pageSlug, isPreview = false) {
-  const accessToken = isPreview
-    ? process.env.NEXT_PUBLIC_CONTENTFUL_PREVIEW_TOKEN
-    : process.env.CONTENTFUL_DELIVERY_TOKEN;
-
-  const client = createClient({
-    space: process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID,
-    accessToken,
-  });
-
+export default async function ComposablePage({ params }) {
   try {
-    const response = await client.getEntries({
-      content_type: 'homePage',
-      'fields.slug': pageSlug,
-      include: 2,
-    });
+    // Await the params object itself before destructuring/accessing
+    const awaitedParams = await params;
+    const slugArray = awaitedParams?.slug; // Access slug array safely
 
-    if (response.items.length === 0) {
-      return null;
+    if (!Array.isArray(slugArray) || slugArray.length === 0) {
+      console.warn("Invalid slug parameter received:", awaitedParams);
+      return notFound();
     }
 
-    return response.items[0];
+    const pageSlug = slugArray.join('/');
+    const fullPath = `/${pageSlug}`; // Construct the full path (e.g., /about)
+
+    // Fetch the page data using the full path slug
+    // getPageFromSlug determines the type ('page' or 'invoice' based on pattern)
+    const page = await getPageFromSlug(fullPath); // <<< This line needs the import
+
+    // --- Handle 'page' type entries ---
+    if (page && page.sys?.contentType?.sys?.id === 'page') {
+        if (!page.fields || !page.fields.sections) {
+             console.warn(`Page entry found for slug '${fullPath}', but missing fields or sections.`, page);
+             return notFound();
+        }
+        return (
+          <div data-sb-object-id={page.sys.id}>
+            {Array.isArray(page.fields.sections) && page.fields.sections.map((section) => {
+               if (!section || !section.sys || !section.sys.contentType || !section.sys.contentType.sys || !section.sys.id || !section.fields) {
+                 console.warn("Skipping rendering of invalid section object:", section);
+                 return null;
+               }
+               const contentTypeId = section.sys.contentType.sys.id;
+               const Component = componentMap[contentTypeId];
+               if (!Component) {
+                 console.warn(`No component mapped for section content type: ${contentTypeId}`);
+                 return <div key={section.sys.id}>Component for {contentTypeId} not found</div>;
+               }
+               return <Component key={section.sys.id} {...section.fields} id={section.sys.id} />;
+            })}
+          </div>
+        );
+    }
+    // --- Handle 'invoice' type entries ---
+    else if (page && page.sys?.contentType?.sys?.id === 'invoice') {
+         // ** Implement invoice rendering here **
+         return (
+             <div data-sb-object-id={page.sys.id}>
+                 <h1>Invoice: {page.fields?.slug || 'Unknown'}</h1>
+                 <p>Rendering for this content type needs to be implemented.</p>
+                 {/* Add fields like StartDate, endDate, address */}
+                 {/* Add data-sb-field-path attributes */}
+             </div>
+         );
+    }
+    // --- Handle not found ---
+    else {
+      console.log(`No content found or no renderer for slug: ${fullPath}`);
+      return notFound();
+    }
+
   } catch (error) {
-    console.error(`Error fetching page data for slug "${pageSlug}":`, error);
-    return null;
+     const awaitedParams = await params; // Await here too for error logging
+     console.error(`Error fetching or rendering page for slug '${awaitedParams?.slug?.join('/')}':`, error.message, error.stack);
+     return notFound();
   }
 }
