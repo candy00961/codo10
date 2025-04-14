@@ -32,8 +32,13 @@ export default defineStackbitConfig({
   ],
   modelExtensions: [
 
-    { name: 'page', type: 'page', urlPath: '/{slug}' }, // Ensure 'page' matches Contentful content type ID
-
+     { name: 'homePage', type: 'page', urlPath: '/' }, // Home Page model
+    { name: 'page', type: 'page', urlPath: '/{slug}' }, // Generic page model
+    { name: 'invoice', type: 'page', urlPath: '/invoice/{slug}' }, // Invoice model
+    { name: 'button', type: 'object' }, // Button model
+    { name: 'hero', type: 'object' },   // Hero model
+    { name: 'stats', type: 'object' },  // Stats model
+    { name: 'statItem', type: 'object' 
   ],
   siteMap: ({ documents, models }) => {
     const pageModels = models.filter((m) => m.type === 'page');
