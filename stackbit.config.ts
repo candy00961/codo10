@@ -32,7 +32,7 @@ export default defineStackbitConfig({
   ],
   modelExtensions: [
 
-    { name: 'homePage', type: 'page', urlPath: '/{slug}' }, // Ensure 'page' matches Contentful content type ID
+    { name: 'page', type: 'page', urlPath: '/{slug}' }, // Ensure 'page' matches Contentful content type ID
 
   ],
   siteMap: ({ documents, models }) => {
