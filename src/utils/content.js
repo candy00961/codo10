@@ -1,6 +1,6 @@
 import { createClient } from 'contentful';
 
-const PAGE_CONTENT_TYPES = ['homePage', 'page'];
+const PAGE_CONTENT_TYPES = ['page'];
 const IS_DEV = process.env.NODE_ENV === 'development';
 const DEBUG = process.env.DEBUG === 'true';
 
