@@ -1,57 +1,89 @@
+// stackbit.config.ts
+// Changed component models from type: "object" to type: "data"
+
+import { defineStackbitConfig, SiteMapEntry } from "@stackbit/types";
 import { ContentfulContentSource } from '@stackbit/cms-contentful';
-import { defineStackbitConfig } from '@stackbit/types';
-import dotenv from 'dotenv';
 
-dotenv.config({ path: './.env' });
-
-// Validate required environment variables
-const requiredEnvVars = [
-  'NEXT_PUBLIC_CONTENTFUL_SPACE_ID',
-  'NEXT_PUBLIC_CONTENTFUL_PREVIEW_TOKEN',
-  'CONTENTFUL_MANAGEMENT_TOKEN',
-];
-requiredEnvVars.forEach((envVar) => {
-  if (!process.env[envVar]) {
-    console.error(`Error: Environment variable ${envVar} is not set`);
-    process.exit(1);
-  }
-});
+if (!process.env.CONTENTFUL_SPACE_ID) {
+  throw new Error('Stackbit requires CONTENTFUL_SPACE_ID environment variable');
+}
+if (!process.env.CONTENTFUL_PREVIEW_TOKEN) {
+  throw new Error('Stackbit requires CONTENTFUL_PREVIEW_TOKEN environment variable');
+}
+if (!process.env.CONTENTFUL_MANAGEMENT_TOKEN) {
+  console.warn('Stackbit: CONTENTFUL_MANAGEMENT_TOKEN environment variable is missing, editor functionality might be limited.');
+}
 
 export default defineStackbitConfig({
-  stackbitVersion: '~2.1.0', // Compatible with latest features
-  ssgName: 'nextjs',
-  nodeVersion: '20.18.1', // Match your Node.js version
-  devCommand: 'npm run dev',
+  stackbitVersion: '~0.6.0',
+  nodeVersion: '20.18.1',
+
   contentSources: [
     new ContentfulContentSource({
-      spaceId: process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID,
+      spaceId: process.env.CONTENTFUL_SPACE_ID,
       environment: process.env.CONTENTFUL_ENVIRONMENT || 'master',
-      previewToken: process.env.NEXT_PUBLIC_CONTENTFUL_PREVIEW_TOKEN,
-      accessToken: process.env.CONTENTFUL_MANAGEMENT_TOKEN,
+      previewToken: process.env.CONTENTFUL_PREVIEW_TOKEN,
+      accessToken: process.env.CONTENTFUL_MANAGEMENT_TOKEN!,
     }),
   ],
+
   modelExtensions: [
-
-    { name: 'homePage', type: 'page', urlPath: '/{slug}' }, // Ensure 'page' matches Contentful content type ID
-
+    {
+      name: 'page',        // Page type
+      type: 'page',
+      urlPath: '/{slug}',
+    },
+    {
+      name: 'invoice',     // Page type
+      type: 'page',
+      urlPath: '/invoices/{slug}',
+    },
+    // --- Change type to "data" for component/data models ---
+    { name: 'hero', type: 'data' },
+    { name: 'stats', type: 'data' },
+    { name: 'button', type: 'data' },
+    { name: 'statItem', type: 'data' },
+    // --- End change ---
   ],
-  siteMap: ({ documents, models }) => {
-    const pageModels = models.filter((m) => m.type === 'page');
-    return documents
-      .filter((d) => pageModels.some((m) => m.name === d.modelName))
+
+  // Keep siteMap function for now
+  siteMap: ({ documents }) => {
+    if (!Array.isArray(documents)) {
+        console.warn('[siteMap] Received non-array or undefined documents. Returning empty map.');
+        return [];
+    }
+    const entries: SiteMapEntry[] = documents
+      .filter((doc) => doc.modelName === 'page' || doc.modelName === 'invoice')
       .map((document) => {
-        const modelExtension = pageModels.find((m) => m.name === document.modelName);
-        if (modelExtension) {
-          const urlPath = modelExtension.urlPath.replace('{slug}', document.fields.slug?.['en-US'] || '');
-          return {
-            stableId: document.id,
-            urlPath,
-            document,
-            isHomePage: document.modelName === 'page' && urlPath === '/',
-          };
+        const slug = document.fields?.slug as string | undefined;
+        const title = document.fields?.title as string | undefined;
+        const entryId = document.sys?.id;
+        if (!entryId || typeof slug === 'undefined') {
+            console.warn(`[siteMap] Document ${entryId || 'UNKNOWN'} missing ID or slug, skipping:`, document?.modelName);
+            return null;
         }
-        return null;
+        let urlPath: string | null = null;
+        let isHomePage = false;
+        if (document.modelName === 'page') {
+          urlPath = slug === '/' ? '/' : `/${slug.startsWith('/') ? slug.substring(1) : slug}`;
+          isHomePage = slug === '/';
+        } else if (document.modelName === 'invoice') {
+          urlPath = `/invoices/${slug.startsWith('/') ? slug.substring(1) : slug}`;
+        }
+        if (!urlPath) {
+            console.warn(`[siteMap] Could not determine urlPath for document:`, entryId, document.modelName);
+            return null;
+        }
+        return {
+          stableId: entryId,
+          label: title || slug,
+          urlPath: urlPath,
+          isHomePage: isHomePage,
+        };
       })
-      .filter(Boolean);
+      .filter((entry): entry is SiteMapEntry => entry !== null);
+      console.log(`[siteMap] Generated ${entries.length} site map entries.`);
+      return entries;
   },
+
 });
