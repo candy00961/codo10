@@ -11,7 +11,7 @@ const componentMap = {
   // Add mappings for any other section types you might create
 };
 
-export default async function HomePage() {
+export default async function page() {
   try {
     // Fetch the 'page' entry with slug '/'
     const page = await getPageFromSlug("/", 'page');
