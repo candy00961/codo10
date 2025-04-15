@@ -47,7 +47,7 @@ export default defineStackbitConfig({
   ],
 
   // Keep siteMap function for now
-  siteMap: ({ documents }) => {
+  siteMap: ({ documents, models }) => {
     if (!Array.isArray(documents)) {
         console.warn('[siteMap] Received non-array or undefined documents. Returning empty map.');
         return [];
