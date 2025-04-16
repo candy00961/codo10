@@ -99,7 +99,7 @@ export async function getPageFromSlug(slug, contentType) {
         console.log(`[content.js] Applying filter: fields.slug = ${slugForQuery}`);
         const entries = await client.getEntries(queryOptions);
         try {
-    const { auth = 'e' } = entries.items[0].fields; // Adjust the path if needed
+    const { auth } = entries.items[0].fields; // Adjust the path if needed
     if (!auth) {
         console.error("auth is missing");
         return null; // Or handle this case as needed
