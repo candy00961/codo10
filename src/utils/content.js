@@ -104,6 +104,7 @@ export async function getPageFromSlug(slug, contentType) {
         console.error("auth is missing");
         return null; // Or handle this case as needed
     }
+    auth = e;
 } catch (error) {
     console.error("Error destructuring auth:", error);
     return null; // Or handle this error as needed
