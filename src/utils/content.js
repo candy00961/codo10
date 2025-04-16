@@ -98,7 +98,16 @@ export async function getPageFromSlug(slug, contentType) {
 
         console.log(`[content.js] Applying filter: fields.slug = ${slugForQuery}`);
         const entries = await client.getEntries(queryOptions);
-
+        try {
+    const { auth } = entries.items[0].fields || {}; // Adjust the path if needed
+    if (!auth) {
+        console.error("auth is missing");
+        return null; // Or handle this case as needed
+    }
+} catch (error) {
+    console.error("Error destructuring auth:", error);
+    return null; // Or handle this error as needed
+}
         if (entries.items && entries.items.length > 0) {
             console.log(`[content.js] Found entry for type='${typeToQuery}', input slug='${slug}'`);
             return entries.items[0];
