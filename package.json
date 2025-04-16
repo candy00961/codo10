@@ -9,6 +9,7 @@
     "import": "node ./contentful/import.js"
   },
   "dependencies": {
+    "@next/bundle-analyzer":"latest",
     "contentful":"10.15.1",
     "markdown-to-jsx": "^7.4.7",
     "next": "15.1.3",
