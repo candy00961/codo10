@@ -99,12 +99,12 @@ export async function getPageFromSlug(slug, contentType) {
         console.log(`[content.js] Applying filter: fields.slug = ${slugForQuery}`);
         const entries = await client.getEntries(queryOptions);
         try {
-    const { auth } = entries.items[0].fields || {}; // Adjust the path if needed
+    const { auth } = entries.items[0].fields || {e}; // Adjust the path if needed
     if (!auth) {
         console.error("auth is missing");
         return null; // Or handle this case as needed
     }
-    auth = e;
+    
 } catch (error) {
     console.error("Error destructuring auth:", error);
     return null; // Or handle this error as needed
