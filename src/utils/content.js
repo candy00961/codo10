@@ -23,8 +23,8 @@ const client = (space && accessToken) ? createClient({
 }) : null;
 
 // --- Content Type IDs ---
-const CONTENTFUL_INVOICE_TYPE_ID = process.env.CONTENTFUL_INVOICE_TYPE_ID || 'invoice';
-const CONTENTFUL_PAGE_TYPE_ID = process.env.CONTENTFUL_PAGE_TYPE_ID || 'page'; // Used for default and homepage
+const CONTENTFUL_INVOICE_TYPE_ID = 'invoice';
+const CONTENTFUL_PAGE_TYPE_ID = 'page'; // Used for default and homepage
 
 /**
  * Fetches a single Contentful entry based on its slug.
@@ -104,6 +104,7 @@ export async function getPageFromSlug(slug, contentType) {
         console.error("auth is missing");
         return null; // Or handle this case as needed
     }
+
 } catch (error) {
     console.error("Error destructuring auth:", error);
     return null; // Or handle this error as needed
