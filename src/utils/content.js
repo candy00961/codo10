@@ -1,46 +1,43 @@
 // src/utils/content.js
-// VERSION: Assumes 'page' content type (ID 'page') is used for ALL pages, including homepage via slug '/'.
-
 import { createClient } from 'contentful';
 
 // --- Contentful Client Setup ---
 const space = process.env.CONTENTFUL_SPACE_ID;
+// Use preview token if available, otherwise delivery token
 const accessToken = process.env.CONTENTFUL_PREVIEW_TOKEN || process.env.CONTENTFUL_DELIVERY_TOKEN;
 const host = process.env.CONTENTFUL_PREVIEW_TOKEN
   ? 'preview.contentful.com'
-  : undefined;
+  : undefined; // Use default host (cdn.contentful.com) for delivery API
 
-if (!space || !accessToken) {
-  console.error(
-    'Contentful Space ID and Access Token must be provided via environment variables.'
-  );
+if (!space) {
+  throw new Error('Contentful Space ID must be provided via CONTENTFUL_SPACE_ID environment variable.');
+}
+if (!accessToken) {
+    throw new Error('Contentful Delivery API Token (CONTENTFUL_DELIVERY_TOKEN) or Preview API Token (CONTENTFUL_PREVIEW_TOKEN) must be provided via environment variables.');
 }
 
-const client = (space && accessToken) ? createClient({
+const client = createClient({
   space: space,
   accessToken: accessToken,
   host: host,
-}) : null;
+});
 
 // --- Content Type IDs ---
-const CONTENTFUL_INVOICE_TYPE_ID = 'invoice';
-const CONTENTFUL_PAGE_TYPE_ID = 'page'; // Used for default and homepage
+const CONTENTFUL_INVOICE_TYPE_ID = 'invoice'; // Use your actual invoice content type ID
+const CONTENTFUL_PAGE_TYPE_ID = 'page'; // Used for default pages
 
 /**
  * Fetches a single Contentful entry based on its slug.
- * Determines content type based on slug pattern (/invoices/ vs default 'page').
+ * Determines content type based on slug pattern (/invoices/ vs default 'page'),
+ * unless a specific contentType is provided.
  *
  * @param {string} slug - The URL slug (e.g., "/", "/about", "/invoices/inv-001").
  * @param {string} [contentType] - Optional: Explicitly specify Contentful ID (overrides pattern matching).
  * @returns {Promise<object|null>} - The Contentful entry object or null.
  */
 export async function getPageFromSlug(slug, contentType) {
-    if (!client) {
-        console.error("[content.js] Contentful client not initialized.");
-        return null;
-    }
     if (slug === undefined || slug === null) {
-        console.warn('[content.js] getPageFromSlug called with invalid slug.');
+        // console.warn('[content.js] getPageFromSlug called with invalid slug.'); // Removed console
         return null;
     }
 
@@ -51,85 +48,67 @@ export async function getPageFromSlug(slug, contentType) {
     if (!typeToQuery) {
         if (slug.startsWith('/invoices/')) {
             typeToQuery = CONTENTFUL_INVOICE_TYPE_ID;
-            slugForQuery = slug.substring('/invoices/'.length);
+            // Remove the prefix for the query, handle potential trailing slash
+            slugForQuery = slug.substring('/invoices/'.length).replace(/\/$/, '');
             if (!slugForQuery) {
-                 console.warn(`[content.js] Invalid invoice slug detected: ${slug}`);
-                 return null;
+                // console.warn(`[content.js] Invalid invoice slug detected: ${slug}`); // Removed console
+                return null;
             }
         } else {
             // Default to 'page' type for everything else, including homepage slug '/'
             typeToQuery = CONTENTFUL_PAGE_TYPE_ID;
-            // Adjust slug format for query - assumes 'page' slugs don't have leading '/' EXCEPT homepage itself
-            if (slug === '/') {
-                slugForQuery = '/';
-            } else {
-                slugForQuery = slug.startsWith('/') ? slug.substring(1) : slug;
-            }
+            // Adjust slug format for query - Contentful usually stores '/' for homepage
+            // Other pages usually don't have leading/trailing slashes in their slug field
+            slugForQuery = slug === '/' ? '/' : slug.replace(/^\/|\/$/g, '');
         }
     } else {
-         // Content Type was provided explicitly, adjust slug if needed
+         // Content Type was provided explicitly, adjust slug if needed based on convention
          if (typeToQuery === CONTENTFUL_INVOICE_TYPE_ID && slug.startsWith('/invoices/')) {
-            slugForQuery = slug.substring('/invoices/'.length);
+            slugForQuery = slug.substring('/invoices/'.length).replace(/\/$/, '');
          } else if (typeToQuery === CONTENTFUL_PAGE_TYPE_ID) {
-             if (slug === '/') {
-                 slugForQuery = '/';
-             } else {
-                 slugForQuery = slug.startsWith('/') ? slug.substring(1) : slug;
-             }
+             slugForQuery = slug === '/' ? '/' : slug.replace(/^\/|\/$/g, '');
          }
          // Add adjustments for other explicit types if needed
     }
 
     if (!typeToQuery) {
-        console.error(`[content.js] Could not determine content type for input slug: ${slug}`);
+        console.error(`[content.js] Could not determine content type for input slug: ${slug}`); // Keep error log
         return null;
     }
 
-    console.log(`[content.js] Attempting to query Contentful: type='${typeToQuery}', inputSlug='${slug}', querySlug='${slugForQuery}'`);
+    // console.log(`[content.js] Querying Contentful: type='${typeToQuery}', querySlug='${slugForQuery}'`); // Removed console
 
     try {
         // Build the query object - assumes BOTH 'page' and 'invoice' types have a 'slug' field
         const queryOptions = {
             content_type: typeToQuery,
-            'fields.slug': slugForQuery, // Always filter by slug now
+            'fields.slug': slugForQuery, // Filter by the processed slug
             limit: 1,
-            include: 2, // Include linked sections/references
+            include: 2, // Include linked sections/references up to 2 levels deep
         };
 
-        console.log(`[content.js] Applying filter: fields.slug = ${slugForQuery}`);
         const entries = await client.getEntries(queryOptions);
-        try {
-    const { auth } = entries.items[0].fields || {}; // Adjust the path if needed
-    if (!auth) {
-        console.error("auth is missing");
-        return null; // Or handle this case as needed
-    }
 
-} catch (error) {
-    console.error("Error destructuring auth:", error);
-    return null; // Or handle this error as needed
-}
         if (entries.items && entries.items.length > 0) {
-            console.log(`[content.js] Found entry for type='${typeToQuery}', input slug='${slug}'`);
+            // console.log(`[content.js] Found entry for type='${typeToQuery}', input slug='${slug}'`); // Removed console
             return entries.items[0];
         } else {
-            console.warn(`[content.js] No entry found for type='${typeToQuery}', input slug='${slug}' (query options: ${JSON.stringify(queryOptions)})`);
+            // console.warn(`[content.js] No entry found for type='${typeToQuery}', input slug='${slug}' (query options: ${JSON.stringify(queryOptions)})`); // Removed console
             return null;
         }
     } catch (error) {
-        // Error Logging (same as before)
-        console.error(`[content.js] Error fetching entry from Contentful for input slug '${slug}':`, error.message);
+        console.error(`[content.js] Error fetching entry from Contentful for input slug '${slug}':`, error.message); // Keep error log
         if (error.response?.data) {
-            console.error('[content.js] Contentful Error Details:', JSON.stringify(error.response.data, null, 2));
+            console.error('[content.js] Contentful Error Details:', JSON.stringify(error.response.data, null, 2)); // Keep error log
              if (error.response.data.message?.includes('unknown field') || error.response.data.message?.includes('No field with id')) {
-                 console.error(`[content.js] HINT: Check if the field 'slug' exists on the Content Type '${typeToQuery}' in Contentful.`);
+                 console.error(`[content.js] HINT: Check if the field 'slug' exists on the Content Type '${typeToQuery}' in Contentful.`); // Keep error log
             }
             if (error.response.data.message?.includes('unknownContentType')) {
-                console.error(`[content.js] HINT: The resolved content type ID '${typeToQuery}' might be incorrect or does not exist in Contentful space '${space}'. Check CONTENTFUL_*_TYPE_ID variables/defaults.`);
+                console.error(`[content.js] HINT: The resolved content type ID '${typeToQuery}' might be incorrect or does not exist in Contentful space '${space}'. Check CONTENTFUL_*_TYPE_ID variables/defaults.`); // Keep error log
             }
         } else {
-            console.error('[content.js] Full Error Object:', error);
+            // console.error('[content.js] Full Error Object:', error); // Removed console
         }
         return null;
     }
-} // End of getPageFromSlug function
+}
