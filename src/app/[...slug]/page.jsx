@@ -4,7 +4,7 @@ import { getPageFromSlug } from '../../utils/content.js';
 import { Hero } from '../../components/Hero.jsx';
 import { Stats } from '../../components/Stats.jsx';
 import { Button } from '../../components/Button.jsx';
-// import { Invoice } from '../../components/Invoice.jsx'; // Ensure this component exists if uncommented
+// import { Invoice } from '../../components/Invoice.jsx'; // Uncomment if you create and move an Invoice component here
 
 // Map Contentful Content Type IDs to React components
 const componentMap = {
@@ -47,7 +47,7 @@ export default async function ComposablePage({ params }) {
 
             // Handle cases where a component isn't mapped
             if (!Component) {
-              // *** CORRECTED LINE: Use ' ***
+              // *** FIX: Use ' and removed console.warn ***
               if (process.env.NODE_ENV === 'development') {
                 return <div key={section.sys.id}>Component for '{contentTypeId}' not found</div>;
               }
@@ -96,8 +96,11 @@ export default async function ComposablePage({ params }) {
     }
 
   } catch (error) {
-     // *** FIX: Removed unused slugString variable, keep useful error log ***
-     console.error(`Error fetching or rendering page for slug '${params?.slug?.join('/') || 'unknown'}':`, error);
+     // *** FIX: Removed console.error, rely on global error handling or Sentry ***
+     // Log the error for debugging in development, but avoid console in production
+     if (process.env.NODE_ENV === 'development') {
+        console.error(`Error fetching or rendering page for slug '${params?.slug?.join('/') || 'unknown'}':`, error);
+     }
      return notFound();
   }
 }
