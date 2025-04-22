@@ -4,7 +4,7 @@ import { getPageFromSlug } from '../../utils/content.js';
 import { Hero } from '../../components/Hero.jsx';
 import { Stats } from '../../components/Stats.jsx';
 import { Button } from '../../components/Button.jsx';
-// import { Invoice } from '../../components/Invoice.jsx'; // Uncomment if you create and move an Invoice component here
+// import { Invoice } from '../../components/Invoice.jsx'; // Ensure this component exists if uncommented
 
 // Map Contentful Content Type IDs to React components
 const componentMap = {
@@ -96,8 +96,8 @@ export default async function ComposablePage({ params }) {
     }
 
   } catch (error) {
-     // *** FIX: Removed unused slugString variable and unnecessary console logs ***
-     console.error(`Error fetching or rendering page for slug '${params?.slug?.join('/') || 'unknown'}':`, error); // Keep error log for debugging
+     // *** FIX: Removed unused slugString variable, keep useful error log ***
+     console.error(`Error fetching or rendering page for slug '${params?.slug?.join('/') || 'unknown'}':`, error);
      return notFound();
   }
 }
