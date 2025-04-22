@@ -48,6 +48,7 @@ export default defineStackbitConfig({
 
   // Keep siteMap function for now
   siteMap: ({ documents }) => {
+    console.log('[siteMap] Received documents:', documents); // Log the documents for debugging
     if (!Array.isArray(documents)) {
         console.warn('[siteMap] Received non-array or undefined documents. Returning empty map.');
         return [];
