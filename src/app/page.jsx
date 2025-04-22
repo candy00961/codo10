@@ -16,23 +16,24 @@ const componentMap = {
 export default async function page() {
   try {
     // Fetch the 'page' entry with slug '/'
-    const page = await getPageFromSlug("/", 'page');
+    // Assuming getPageFromSlug handles the specific 'page' type lookup for '/'
+    const pageData = await getPageFromSlug("/", 'page'); // Explicitly request 'page' type
 
     // Check if the page, its fields, or the sections array are missing
-    if (!page || !page.fields || !page.fields.sections) {
-      console.error("Error: Homepage ('/' page entry) not found, missing fields, or missing sections.", page);
+    if (!pageData || !pageData.fields || !Array.isArray(pageData.fields.sections)) {
+      // console.error("Error: Homepage ('/' page entry) not found, missing fields, or missing sections.", pageData); // Removed console
       return notFound();
     }
 
     // Use the actual page entry's ID for the top-level Stackbit object ID
     return (
-      <div data-sb-object-id={page.sys.id}>
-        {/* Safely map over the sections array */}
-        {Array.isArray(page.fields.sections) && page.fields.sections.map((section) => {
+      <div data-sb-object-id={pageData.sys.id}>
+        {/* Map over the sections array */}
+        {pageData.fields.sections.map((section) => {
           // Basic check for a valid section object structure
-          if (!section || !section.sys || !section.sys.contentType || !section.sys.contentType.sys || !section.sys.id || !section.fields) {
-             console.warn("Skipping rendering of invalid section object:", section);
-             return null;
+          if (!section?.sys?.contentType?.sys?.id || !section.fields || !section.sys.id) {
+            // console.warn("Skipping rendering of invalid section object:", section); // Removed console
+            return null;
           }
 
           // Get the Content Type ID of the linked section entry
@@ -41,9 +42,11 @@ export default async function page() {
 
           // Handle cases where a component isn't mapped
           if (!Component) {
-            console.warn(`No component mapped for section content type: ${contentTypeId}`);
-            // Optionally render a placeholder
-            return <div key={section.sys.id}>Component for {contentTypeId} not found</div>;
+            // console.warn(`No component mapped for section content type: ${contentTypeId}`); // Removed console
+            if (process.env.NODE_ENV === 'development') {
+              return <div key={section.sys.id}>Component for '{contentTypeId}' not found</div>;
+            }
+            return null;
           }
 
           // Pass the linked section's FIELDS as props, and its ID separately
@@ -53,7 +56,7 @@ export default async function page() {
       </div>
     );
   } catch (error) {
-    console.error("Error fetching or rendering homepage:", error.message, error.stack);
+    // console.error("Error fetching or rendering homepage:", error); // Removed console
     return notFound(); // Return 404 page on error
   }
 }
