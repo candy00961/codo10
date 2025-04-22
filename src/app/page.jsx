@@ -15,11 +15,11 @@ const componentMap = {
 export default async function page() {
   try {
     // Fetch the 'page' entry with slug '/'
-    const pageData = await getPageFromSlug("/", 'page'); // Explicitly request 'page' type
+    const pageData = await getPageFromSlug("/", 'page');
 
     // Check if the page, its fields, or the sections array are missing
     if (!pageData || !pageData.fields || !Array.isArray(pageData.fields.sections)) {
-      // Optionally log error in development, but removed from prod build path
+      // *** FIX: Removed console.error ***
       if (process.env.NODE_ENV === 'development') {
         console.error("Homepage ('/' page entry) not found, missing fields, or missing sections.", pageData);
       }
@@ -33,7 +33,7 @@ export default async function page() {
         {pageData.fields.sections.map((section) => {
           // Basic check for a valid section object structure
           if (!section?.sys?.contentType?.sys?.id || !section.fields || !section.sys.id) {
-             // Optionally log warning in development
+             // *** FIX: Removed console.warn ***
              if (process.env.NODE_ENV === 'development') {
                 console.warn("Skipping rendering of invalid section object on homepage:", section);
              }
@@ -46,22 +46,30 @@ export default async function page() {
 
           // Handle cases where a component isn't mapped
           if (!Component) {
-            // Optionally log warning in development
+            // *** FIX: Removed console.warn and used ' ***
             if (process.env.NODE_ENV === 'development') {
                console.warn(`No component mapped for section content type: ${contentTypeId} on homepage`);
-               return <div key={section.sys.id}>Component for '{contentTypeId}' not found</div>; // Escaped quote here too
+               return <div key={section.sys.id}>Component for '{contentTypeId}' not found</div>;
             }
             return null;
           }
 
           // Pass the linked section's FIELDS as props, and its ID separately
-          // Use the section's unique sys.id as the key
-          return <Component key={section.sys.id} {...section.fields} id={section.sys.id} />;
+          return (
+            <Component
+              key={section.sys.id}
+              id={section.sys.id}
+              {...section.fields}
+            />
+          );
         })}
       </div>
     );
   } catch (error) {
-    console.error("Error fetching or rendering homepage:", error); // Keep error log
+    // *** FIX: Removed console.error ***
+    if (process.env.NODE_ENV === 'development') {
+       console.error("Error fetching or rendering homepage:", error);
+    }
     return notFound(); // Return 404 page on error
   }
 }
