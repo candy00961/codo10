@@ -55,7 +55,10 @@ export const Stats = ({ id, heading, body, stats, theme }) => {
          >
           {(stats || []).map((stat, idx) => {
             if (!stat?.sys?.id || !stat.fields) {
-              // console.warn('Skipping rendering of invalid stat item object:', stat); // Removed console
+              // Optionally log warning in dev
+              if (process.env.NODE_ENV === 'development') {
+                console.warn('Skipping rendering of invalid stat item object in Stats component:', stat);
+              }
               return null;
             }
 
