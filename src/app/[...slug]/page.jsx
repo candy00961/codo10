@@ -68,11 +68,11 @@ export default async function ComposablePage({ params }) {
               console.warn(`[ComposablePage] No component mapped for section content type: ${contentTypeId}`);
               // Optionally render a placeholder in development
               if (process.env.NODE_ENV === 'development') {
+                  // *** CORRECTED LINE ***
                   return <div key={section.sys.id}>Component for '{contentTypeId}' not found</div>;
               }
               return null; // Don't render anything in production for unmapped components
             }
-
             // Render the mapped component, passing section fields as props
             // and the section's Contentful ID as the 'id' prop (used for data-sb-object-id within the component)
             return (
