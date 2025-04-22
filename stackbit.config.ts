@@ -20,9 +20,9 @@ export default defineStackbitConfig({
 
   contentSources: [
     new ContentfulContentSource({
-      spaceId: process.env.CONTENTFUL_SPACE_ID,
+      spaceId: process.env.CONTENTFUL_SPACE_ID!,
       environment: process.env.CONTENTFUL_ENVIRONMENT || 'master',
-      previewToken: process.env.CONTENTFUL_PREVIEW_TOKEN,
+      previewToken: process.env.CONTENTFUL_PREVIEW_TOKEN!,
       accessToken: process.env.CONTENTFUL_MANAGEMENT_TOKEN!,
     }),
   ],
@@ -48,6 +48,7 @@ export default defineStackbitConfig({
 
   // Keep siteMap function for now
   siteMap: ({ documents }) => {
+    console.log('[siteMap] Received documents:', documents); // Log the documents for debugging
     if (!Array.isArray(documents)) {
         console.warn('[siteMap] Received non-array or undefined documents. Returning empty map.');
         return [];
