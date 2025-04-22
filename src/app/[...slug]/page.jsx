@@ -1,41 +1,40 @@
 // src/app/[...slug]/page.jsx
 import { notFound } from 'next/navigation';
-import { getPageFromSlug } from '../../utils/content.js'; // Correct import
-import { Hero } from '../../components/Hero.jsx';         // Correct import path
-import { Stats } from '../../components/Stats.jsx';       // Correct import path
-import { Button } from '../../components/Button.jsx';     // Assuming Button might be a section type or needed
-// import { Invoice } from '../../components/Invoice.jsx'; // Uncomment if you create and move an Invoice component here
+import { getPageFromSlug } from '../../utils/content.js';
+import { Hero } from '../../components/Hero.jsx';
+import { Stats } from '../../components/Stats.jsx';
+import { Button } from '../../components/Button.jsx';
+// import { Invoice } from '../../components/Invoice.jsx';
 
 // Map Contentful Content Type IDs to React components
 const componentMap = {
   hero: Hero,
   stats: Stats,
   button: Button,
-  // Add other mappings like 'featureList', 'testimonial', etc. if you have them
 };
 
 export default async function ComposablePage({ params }) {
   try {
     const slugArray = params?.slug;
     if (!Array.isArray(slugArray) || slugArray.length === 0) {
-      // console.warn("Invalid or missing slug parameter received:", params); // Removed console
+      // console.warn("Invalid or missing slug parameter received:", params);
       return notFound();
     }
 
     const joinedSlug = slugArray.join('/');
     const fullPath = joinedSlug.startsWith('/') ? joinedSlug : `/${joinedSlug}`;
-    // console.log(`[ComposablePage] Processing slug: ${fullPath}`); // Removed console
+    // console.log(`[ComposablePage] Processing slug: ${fullPath}`);
 
     const page = await getPageFromSlug(fullPath);
 
     if (!page) {
-      // console.log(`[ComposablePage] No content found for slug: ${fullPath}`); // Removed console
+      // console.log(`[ComposablePage] No content found for slug: ${fullPath}`);
       return notFound();
     }
 
     if (page.sys?.contentType?.sys?.id === 'page') {
       if (!Array.isArray(page.fields?.sections)) {
-        // console.warn(`Page entry '${page.sys.id}' found for slug '${fullPath}', but missing or invalid 'sections' field.`, page.fields); // Removed console
+        // console.warn(`Page entry '${page.sys.id}' found for slug '${fullPath}', but missing or invalid 'sections' field.`, page.fields);
         return notFound();
       }
 
@@ -43,7 +42,7 @@ export default async function ComposablePage({ params }) {
         <div data-sb-object-id={page.sys.id}>
           {page.fields.sections.map((section) => {
             if (!section?.sys?.contentType?.sys?.id || !section.fields || !section.sys.id) {
-              // console.warn("[ComposablePage] Skipping rendering of invalid section object:", section); // Removed console
+              // console.warn("[ComposablePage] Skipping rendering of invalid section object:", section);
               return null;
             }
 
@@ -51,9 +50,9 @@ export default async function ComposablePage({ params }) {
             const Component = componentMap[contentTypeId];
 
             if (!Component) {
-              // console.warn(`[ComposablePage] No component mapped for section content type: ${contentTypeId}`); // Removed console
+              // console.warn(`[ComposablePage] No component mapped for section content type: ${contentTypeId}`);
               if (process.env.NODE_ENV === 'development') {
-                  // *** THIS LINE IS CORRECTED ***
+                  // *** FIX 1: Use ' for single quotes ***
                   return <div key={section.sys.id}>Component for '{contentTypeId}' not found</div>;
               }
               return null;
@@ -94,13 +93,14 @@ export default async function ComposablePage({ params }) {
         );
     }
     else {
-      // console.warn(`[ComposablePage] Found content for slug '${fullPath}', but it has an unhandled type: '${page.sys?.contentType?.sys?.id}'`); // Removed console
+      // console.warn(`[ComposablePage] Found content for slug '${fullPath}', but it has an unhandled type: '${page.sys?.contentType?.sys?.id}'`);
       return notFound();
     }
 
   } catch (error) {
-     const slugString = params?.slug?.join('/') || 'unknown';
-     // console.error(`Error fetching or rendering page for slug '${slugString}':`, error); // Removed console
+     // *** FIX 2: Remove unused slugString variable ***
+     // console.error(`Error fetching or rendering page for slug '${params?.slug?.join('/') || 'unknown'}':`, error);
+     console.error(`Error fetching or rendering page:`, error); // Log the error itself
      return notFound();
   }
 }
