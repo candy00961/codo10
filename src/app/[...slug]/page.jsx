@@ -78,8 +78,8 @@ export default async function ComposablePage({ params }) {
             if (!Component) {
               if (process.env.NODE_ENV === 'development') {
                 console.warn(`[ComposablePage] No component mapped for section content type: ${contentTypeId}`);
-                // FIX APPLIED HERE: Changed outer quotes to single quotes to avoid ESLint error
-                return <div key={section.sys.id}>Component for '{contentTypeId}' not found</div>;
+                // FIX APPLIED HERE: Used double quotes for the string
+                return <div key={section.sys.id}>Component for "{contentTypeId}" not found</div>;
               }
               return null; // Don't render anything in production for unmapped components
             }
@@ -90,7 +90,7 @@ export default async function ComposablePage({ params }) {
               <Component
                 key={section.sys.id} // Use unique Contentful ID for the key
                 id={section.sys.id}  // Pass the section's ID as a prop (used by the component for its data-sb-object-id)
-                {...section.fields} // Spread the fields of the section entry - FIX for Stats.jsx error
+                {...section.fields} // Spread the fields of the section entry
               />
             );
           })}
