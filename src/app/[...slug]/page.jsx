@@ -78,8 +78,8 @@ export default async function ComposablePage({ params }) {
             if (!Component) {
               if (process.env.NODE_ENV === 'development') {
                 console.warn(`[ComposablePage] No component mapped for section content type: ${contentTypeId}`);
-                // FIX APPLIED HERE: Changed outer quotes to double quotes
-                return <div key={section.sys.id}>Component for "{contentTypeId}" not found</div>;
+                // FIX APPLIED HERE: Using single quotes
+                return <div key={section.sys.id}>Component for '{contentTypeId}' not found</div>;
               }
               return null; // Don't render anything in production for unmapped components
             }
