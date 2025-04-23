@@ -13,9 +13,11 @@ const componentMap = {
   stats: Stats,
   button: Button
   // Add mappings for any other section types you might create
+  // invoice: Invoice, // Uncomment if you created an <Invoice> component and want it on the homepage (unlikely for a typical homepage)
 };
 
-export default async function HomePage() { // Renamed component to HomePage for clarity
+// Renamed component to HomePage for clarity
+export default async function HomePage() {
   try {
     // Fetch the 'page' entry with slug '/'
     // Explicitly request 'page' content type for the homepage slug
@@ -49,10 +51,11 @@ export default async function HomePage() { // Renamed component to HomePage for 
           // Handle cases where a component isn't mapped
           if (!Component) {
             if (process.env.NODE_ENV === 'development') {
-              // *** FIX for react/no-unescaped-entities error ***
-              // Replaced "'" with "'"
               console.warn(`No component mapped for section content type: ${contentTypeId}`);
-              return <div key={section.sys.id}>Component for '{contentTypeId}' not found</div>;
+              // *** FIX APPLIED HERE: Used double quotes for the string ***
+              return <div key={section.sys.id}>Component for "{contentTypeId}" not found</div>;
+              // Alternatively, you could escape the apostrophe:
+              // return <div key={section.sys.id}>Component for '{contentTypeId}' not found</div>;
             }
             return null; // Don't render anything in production for unmapped components
           }
