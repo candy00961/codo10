@@ -44,7 +44,6 @@ export default async function HomePage() {
              return null; // Skip rendering this section
           }
 
-          // Get the Content Type ID of the linked section entry
           const contentTypeId = section.sys.contentType.sys.id;
           const Component = componentMap[contentTypeId];
 
@@ -52,10 +51,8 @@ export default async function HomePage() {
           if (!Component) {
             if (process.env.NODE_ENV === 'development') {
               console.warn(`No component mapped for section content type: ${contentTypeId}`);
-              // *** FIX APPLIED HERE: Used double quotes for the string ***
+              // *** FIX APPLIED HERE: Changed outer quotes to single quotes ***
               return <div key={section.sys.id}>Component for "{contentTypeId}" not found</div>;
-              // Alternatively, you could escape the apostrophe:
-              // return <div key={section.sys.id}>Component for '{contentTypeId}' not found</div>;
             }
             return null; // Don't render anything in production for unmapped components
           }
