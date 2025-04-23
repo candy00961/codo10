@@ -49,7 +49,7 @@ export default async function ComposablePage({ params }) {
             if (!Component) {
               // *** FIX: Use ' and removed console.warn ***
               if (process.env.NODE_ENV === 'development') {
-                return <div key={section.sys.id}>Component for '{contentTypeId}' not found</div>;
+                return <div key={section.sys.id}>Component for {contentTypeId} not found</div>;
               }
               return null;
             }
