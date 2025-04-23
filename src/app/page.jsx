@@ -49,7 +49,7 @@ export default async function page() {
             // *** FIX: Removed console.warn and used ' ***
             if (process.env.NODE_ENV === 'development') {
                console.warn(`No component mapped for section content type: ${contentTypeId} on homepage`);
-               return <div key={section.sys.id}>Component for '{contentTypeId}' not found</div>;
+               return <div key={section.sys.id}>Component for {contentTypeId} not found</div>;
             }
             return null;
           }
