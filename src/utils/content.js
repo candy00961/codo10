@@ -7,11 +7,11 @@ const accessToken = process.env.CONTENTFUL_PREVIEW_TOKEN || process.env.CONTENTF
 const host = process.env.CONTENTFUL_PREVIEW_TOKEN ? 'preview.contentful.com' : undefined;
 
 if (!space) {
-  // *** FIX: Throw error instead of console.error/warn for missing critical env vars ***
+  // Throw error instead of console.error/warn for missing critical env vars
   throw new Error('Contentful Space ID must be provided via CONTENTFUL_SPACE_ID environment variable.');
 }
 if (!accessToken) {
-    // *** FIX: Throw error instead of console.error/warn for missing critical env vars ***
+    // Throw error instead of console.error/warn for missing critical env vars
     throw new Error('Contentful Delivery or Preview Token must be provided via environment variables.');
 }
 
@@ -30,7 +30,7 @@ const CONTENTFUL_PAGE_TYPE_ID = 'page';       // Make sure this matches your act
  */
 export async function getPageFromSlug(slug, contentType) {
     if (slug === undefined || slug === null) {
-        // *** FIX: Removed console.warn ***
+        // Removed console.warn
         return null;
     }
 
@@ -41,67 +41,83 @@ export async function getPageFromSlug(slug, contentType) {
     if (!typeToQuery) {
         if (slug.startsWith('/invoices/')) {
             typeToQuery = CONTENTFUL_INVOICE_TYPE_ID;
-            slugForQuery = slug.substring('/invoices/'.length).replace(/\/$/, '');
+            slugForQuery = slug.substring('/invoices/'.length).replace(/\/$/, ''); // Remove trailing slash from slug
             if (!slugForQuery) {
-                // *** FIX: Removed console.warn ***
+                // Removed console.warn
                 return null;
             }
         } else {
+            // Default to 'page' type for everything else, including homepage slug '/'
             typeToQuery = CONTENTFUL_PAGE_TYPE_ID;
-            slugForQuery = slug === '/' ? '/' : slug.replace(/^\/|\/$/g, '');
+             // Adjust slug format for query - assumes 'page' slugs don't have leading '/' EXCEPT homepage itself
+            slugForQuery = slug === '/' ? '/' : slug.replace(/^\/|\/$/g, ''); // Remove leading/trailing slashes for non-root slugs
         }
     } else {
-         // Adjust slug based on explicitly provided type
+         // Content Type was provided explicitly, adjust slug if needed
          if (typeToQuery === CONTENTFUL_INVOICE_TYPE_ID && slug.startsWith('/invoices/')) {
             slugForQuery = slug.substring('/invoices/'.length).replace(/\/$/, '');
          } else if (typeToQuery === CONTENTFUL_PAGE_TYPE_ID) {
              slugForQuery = slug === '/' ? '/' : slug.replace(/^\/|\/$/g, '');
          }
+         // Add adjustments for other explicit types if needed
     }
 
     if (!typeToQuery) {
-        // *** FIX: Removed console.error ***
+        // Removed console.error
          if (process.env.NODE_ENV === 'development') {
             console.error(`[content.js] Could not determine content type for input slug: ${slug}`);
          }
         return null;
     }
 
+    // Removed console.log for query options
+
     try {
+        // Build the query object - assumes BOTH 'page' and 'invoice' types have a 'fields.slug'
         const queryOptions = {
             content_type: typeToQuery,
-            'fields.slug': slugForQuery,
+            'fields.slug': slugForQuery, // Always filter by slug now
             limit: 1,
-            include: 2,
+            include: 2, // Include linked sections/references (important for page sections)
         };
-
-        // *** FIX: Removed console.log for query options ***
 
         const entries = await client.getEntries(queryOptions);
 
-        // *** FIX: Removed the strange inner try/catch block related to 'auth' ***
+        // *** CRITICAL FIX: REMOVED THE PROBLEMATIC TRY/CATCH BLOCK RELATED TO 'auth' HERE ***
+        // The code that was here was:
+        // try {
+        //     const { auth } = entries.items[0].fields || {};
+        //     if (!auth) {
+        //         console.error("auth is missing");
+        //         return null;
+        //     }
+        // } catch (error) {
+        //     console.error("Error destructuring auth:", error);
+        //     return null;
+        // }
+
 
         if (entries.items && entries.items.length > 0) {
-            // *** FIX: Removed console.log for found entry ***
+            // Removed console.log for found entry
             return entries.items[0];
         } else {
-            // *** FIX: Removed console.warn for not found entry ***
+            // Removed console.warn for not found entry
             return null;
         }
     } catch (error) {
-        // *** FIX: Removed console logs within the catch block, keeping error logging for debugging ***
+        // Error Logging (keep for debugging)
         if (process.env.NODE_ENV === 'development') {
              console.error(`[content.js] Error fetching entry from Contentful for slug '${slug}' (type: ${typeToQuery}):`, error.message);
              if (error.response?.data) {
                  console.error('[content.js] Contentful Error Details:', JSON.stringify(error.response.data, null, 2));
-                  if (error.response.data.message?.includes('unknown field')) {
-                      console.error(`[content.js] HINT: Check if 'slug' field exists on Content Type '${typeToQuery}'.`);
+                  if (error.response.data.message?.includes('unknown field') || error.response.data.message?.includes('No field with id')) {
+                     console.error(`[content.js] HINT: Check if the field 'slug' exists on the Content Type '${typeToQuery}' in Contentful.`);
                  }
                  if (error.response.data.message?.includes('unknownContentType')) {
-                     console.error(`[content.js] HINT: The resolved content type ID '${typeToQuery}' might be incorrect or not exist in Contentful space '${space}'.`);
+                     console.error(`[content.js] HINT: The resolved content type ID '${typeToQuery}' might be incorrect or does not exist in Contentful space '${space}'. Check CONTENTFUL_*_TYPE_ID variables/defaults.`);
                  }
              }
         }
         return null; // Return null on error to allow notFound() in page component
     }
-}
+} // End of getPageFromSlug function
