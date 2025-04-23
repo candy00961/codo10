@@ -51,9 +51,9 @@ export default async function HomePage() {
           if (!Component) {
             if (process.env.NODE_ENV === 'development') {
               console.warn(`No component mapped for section content type: ${contentTypeId}`);
-              // FIX APPLIED HERE: Using DOUBLE quotes for the string
+              // FIX APPLIED HERE: Escaping apostrophes using '
               // Error in log points to line 56.
-              return <div key={section.sys.id}>Component for {contentTypeId} not found</div>;
+              return <div key={section.sys.id}>Component for '{contentTypeId}' not found</div>;
             }
             return null; // Don't render anything in production for unmapped components
           }
