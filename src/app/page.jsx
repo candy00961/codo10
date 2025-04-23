@@ -53,7 +53,7 @@ export default async function HomePage() {
               console.warn(`No component mapped for section content type: ${contentTypeId}`);
               // FIX APPLIED HERE: Using DOUBLE quotes for the string
               // Error in log points to line 56.
-              return <div key={section.sys.id}>Component for '&ldquot'"{contentTypeId}'&ldquot'" not found</div>;
+              return <div key={section.sys.id}>Component for '&ldquo;'"{contentTypeId}'&ldquo;'" not found</div>;
             }
             return null; // Don't render anything in production for unmapped components
           }
