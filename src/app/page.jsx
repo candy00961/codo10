@@ -51,8 +51,8 @@ export default async function HomePage() {
           if (!Component) {
             if (process.env.NODE_ENV === 'development') {
               console.warn(`No component mapped for section content type: ${contentTypeId}`);
-              // *** FIX APPLIED HERE: Changed outer quotes to single quotes ***
-              return <div key={section.sys.id}>Component for "{contentTypeId}" not found</div>;
+              // FIX APPLIED HERE: Changed outer quotes to single quotes
+              return <div key={section.sys.id}>Component for '{contentTypeId}' not found</div>;
             }
             return null; // Don't render anything in production for unmapped components
           }
@@ -62,7 +62,7 @@ export default async function HomePage() {
           return (
             <Component
               key={section.sys.id}
-              id={section.sys.id}  // Pass the section's ID as a prop
+              id={section.sys.id}  // Pass the section's ID as a prop (used by the component for its data-sb-object-id)
               {...section.fields} // Spread the fields object
             />
           );
