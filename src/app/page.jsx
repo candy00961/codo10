@@ -51,7 +51,7 @@ export default async function HomePage() {
           if (!Component) {
             if (process.env.NODE_ENV === 'development') {
               console.warn(`No component mapped for section content type: ${contentTypeId}`);
-              // FIX APPLIED HERE: Replacing apostrophe with '
+              // FIX APPLIED HERE: Replacing the literal apostrophe with '
               // This line (around 56 based on prev logs) is causing the error in page.jsx
               return <div key={section.sys.id}>Component for '{contentTypeId}' not found</div>;
             }
