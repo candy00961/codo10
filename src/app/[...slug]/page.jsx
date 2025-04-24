@@ -79,7 +79,7 @@ export default async function ComposablePage({ params }) {
               if (process.env.NODE_ENV === 'development') {
                 console.warn(`[ComposablePage] No component mapped for section content type: ${contentTypeId}`);
                  // FIX APPLIED HERE: Replacing apostrophe with '
-                 // Error in log points to line 83.
+                 // This line (around 83 based on prev logs) is causing the error in [...slug]/page.jsx
                 return <div key={section.sys.id}>Component for '{contentTypeId}' not found</div>;
               }
               return null; // Don't render anything in production for unmapped components
