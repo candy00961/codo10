@@ -78,7 +78,7 @@ export default async function ComposablePage({ params }) {
             if (!Component) {
               if (process.env.NODE_ENV === 'development') {
                 console.warn(`[ComposablePage] No component mapped for section content type: ${contentTypeId}`);
-                 // FIX APPLIED HERE: Replacing apostrophe with '
+                 // FIX APPLIED HERE: Replacing the literal apostrophe with '
                  // This line (around 83 based on prev logs) is causing the error in [...slug]/page.jsx
                 return <div key={section.sys.id}>Component for '{contentTypeId}' not found</div>;
               }
@@ -91,7 +91,7 @@ export default async function ComposablePage({ params }) {
               <Component
                 key={section.sys.id} // Use unique Contentful ID for the key
                 id={section.sys.id}  // Pass the section's ID as a prop (used by the component for its data-sb-object-id)
-                {...section.fields} // Spread the fields of the section entry
+                {...section.fields} // Spread the fields object
               />
             );
           })}
