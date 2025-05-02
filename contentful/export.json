@@ -449,7 +449,7 @@
         }
       },
       "displayField": "title",
-      "name": "Page",
+      "name": "page",
       "description": "",
       "fields": [
         {
