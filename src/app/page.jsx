@@ -17,7 +17,7 @@ const componentMap = {
 };
 
 // Renamed component to HomePage for clarity
-export default async function HomePage() {
+export default async function page() {
   try {
     // Fetch the 'page' entry with slug '/'
     // Explicitly request 'page' content type for the homepage slug
