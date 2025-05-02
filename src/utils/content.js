@@ -82,19 +82,19 @@ export async function getPageFromSlug(slug, contentType) {
         };
 
         const entries = await client.getEntries(queryOptions);
-
+        const e = entries.items[0].fields;
         // *** CRITICAL FIX: REMOVED THE PROBLEMATIC TRY/CATCH BLOCK RELATED TO 'auth' HERE ***
         // The code that was here was:
-        // try {
-        //     const { auth } = entries.items[0].fields || {};
-        //     if (!auth) {
-        //         console.error("auth is missing");
-        //         return null;
-        //     }
-        // } catch (error) {
-        //     console.error("Error destructuring auth:", error);
-        //     return null;
-        // }
+         try {
+             const { auth } = e || {};
+             if (!auth) {
+                 console.error("auth is missing");
+                 return null;
+             }
+         } catch (error) {
+             console.error("Error destructuring auth:", error);
+             return null;
+         }
 
 
         if (entries.items && entries.items.length > 0) {
