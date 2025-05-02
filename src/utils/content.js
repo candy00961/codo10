@@ -86,7 +86,7 @@ export async function getPageFromSlug(slug, contentType) {
         // *** CRITICAL FIX: REMOVED THE PROBLEMATIC TRY/CATCH BLOCK RELATED TO 'auth' HERE ***
         // The code that was here was:
          try {
-             const { auth } = e || {};
+             const { auth = null } = e || {};
              if (!auth) {
                  console.error("auth is missing");
                  return null;
