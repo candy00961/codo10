@@ -9,8 +9,8 @@ function VisualEditorComponent({ entryId, fieldId, locale = 'en-US' }) {
   useEffect(() => {
     // Initialize Contentful Live Preview
     ContentfulLivePreview.init({
-      space: process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID,
-      accessToken: process.env.NEXT_PUBLIC_CONTENTFUL_PREVIEW_TOKEN,
+      space: process.env.CONTENTFUL_SPACE_ID,
+      accessToken: process.env.CONTENTFUL_PREVIEW_TOKEN,
       enableLiveUpdates: true,
     }).catch((err) => console.error('Live Preview init failed:', err));
 
