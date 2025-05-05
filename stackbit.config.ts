@@ -38,6 +38,10 @@ export default defineStackbitConfig({
       type: 'page',
       urlPath: '/invoices/{slug}',
     },
+    {
+      name:'homepage',
+      type: 'page',
+    }
     // --- Change type to "data" for component/data models ---
     { name: 'hero', type: 'data' },
     { name: 'stats', type: 'data' },
