@@ -40,7 +40,7 @@ export default defineStackbitConfig({
     },
     {
       name:'homepage',
-      type: 'homepage',
+      type: 'object',
     },
     // --- Change type to "data" for component/data models ---
     { name: 'hero', type: 'data' },
