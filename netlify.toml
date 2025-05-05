@@ -4,6 +4,10 @@
 
   publish = ".next"          # Next.js output directory
 
+[[headers]]
+for = "/*"
+[headers.values]
+Content-Security-Policy = "default-src 'self';"
 [images]
   remote_images = [
     "^(?:https:\\/\\/images\\.ctfassets\\.net(?:\\/(?!\\.)(?:(?:(?!(?:^|\\/)\\.).)*?)|$))$"
