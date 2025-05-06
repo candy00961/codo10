@@ -29,8 +29,9 @@ const CONTENTFUL_PAGE_TYPE_ID = 'page';       // Make sure this matches your act
  * Fetches a single Contentful entry based on its slug.
  */
 export async function getPageFromSlug(slug, contentType) {
+    // console.log("***** RUNNING getPageFromSlug v6 - FINAL FIX *****"); // Optional unique marker
+
     if (slug === undefined || slug === null) {
-        // Removed console.warn
         return null;
     }
 
@@ -43,7 +44,6 @@ export async function getPageFromSlug(slug, contentType) {
             typeToQuery = CONTENTFUL_INVOICE_TYPE_ID;
             slugForQuery = slug.substring('/invoices/'.length).replace(/\/$/, ''); // Remove trailing slash from slug
             if (!slugForQuery) {
-                // Removed console.warn
                 return null;
             }
         } else {
@@ -63,14 +63,11 @@ export async function getPageFromSlug(slug, contentType) {
     }
 
     if (!typeToQuery) {
-        // Removed console.error
          if (process.env.NODE_ENV === 'development') {
             console.error(`[content.js] Could not determine content type for input slug: ${slug}`);
          }
         return null;
     }
-
-    // Removed console.log for query options
 
     try {
         // Build the query object - assumes BOTH 'page' and 'invoice' types have a 'fields.slug'
@@ -82,41 +79,31 @@ export async function getPageFromSlug(slug, contentType) {
         };
 
         const entries = await client.getEntries(queryOptions);
-        const e = entries.items[0].fields;
-        // *** CRITICAL FIX: REMOVED THE PROBLEMATIC TRY/CATCH BLOCK RELATED TO 'auth' HERE ***
-        // The code that was here was:
-         try {
-             const { auth } = e || {};
-             if (!auth) {
-                 console.error("auth is missing");
-                 return null;
-             }
-         } catch (error) {
-             console.error("Error destructuring auth:", error);
-             return null;
-         }
 
+        // *** THE PROBLEMATIC AUTH TRY/CATCH BLOCK IS NOW COMPLETELY REMOVED ***
 
-        if (entries.items && entries.items.length > 0) {
-            // Removed console.log for found entry
+        // Check if items exist and return the first one, otherwise return null
+        if (entries?.items?.length > 0) {
             return entries.items[0];
         } else {
-            // Removed console.warn for not found entry
+             if (process.env.NODE_ENV === 'development') {
+                 console.warn(`[content.js] No entry found for type='${typeToQuery}', slug='${slugForQuery}'`);
+             }
             return null;
         }
     } catch (error) {
         // Error Logging (keep for debugging)
-        if (process.env.NODE_ENV === 'development') {
-             console.error(`[content.js] Error fetching entry from Contentful for slug '${slug}' (type: ${typeToQuery}):`, error.message);
-             if (error.response?.data) {
-                 console.error('[content.js] Contentful Error Details:', JSON.stringify(error.response.data, null, 2));
-                  if (error.response.data.message?.includes('unknown field') || error.response.data.message?.includes('No field with id')) {
-                     console.error(`[content.js] HINT: Check if the field 'slug' exists on the Content Type '${typeToQuery}' in Contentful.`);
-                 }
-                 if (error.response.data.message?.includes('unknownContentType')) {
-                     console.error(`[content.js] HINT: The resolved content type ID '${typeToQuery}' might be incorrect or does not exist in Contentful space '${space}'. Check CONTENTFUL_*_TYPE_ID variables/defaults.`);
-                 }
+        console.error(`[content.js] Error fetching entry from Contentful for slug '${slug}' (type: ${typeToQuery}, querySlug: ${slugForQuery}):`, error.message);
+        if (error.response?.data) {
+            console.error('[content.js] Contentful Error Details:', JSON.stringify(error.response.data, null, 2));
+             if (error.response.data.message?.includes('unknown field')) {
+                 console.error(`[content.js] HINT: Check if the field 'slug' exists on the Content Type '${typeToQuery}' in Contentful.`);
              }
+             if (error.response.data.message?.includes('unknownContentType')) {
+                 console.error(`[content.js] HINT: The resolved content type ID '${typeToQuery}' might be incorrect or does not exist in Contentful space '${space}'. Check CONTENTFUL_*_TYPE_ID variables/defaults.`);
+             }
+        } else {
+            console.error('[content.js] Full Error Object:', error);
         }
         return null; // Return null on error to allow notFound() in page component
     }
