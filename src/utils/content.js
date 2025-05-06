@@ -1,4 +1,6 @@
 // src/utils/content.js
+console.log("***** CONTENT.JS - VERSION CHECK - APRIL 26 - 02 *****"); // <-- Unique marker added
+
 import { createClient } from 'contentful';
 
 // --- Contentful Client Setup ---
@@ -23,44 +25,54 @@ const client = createClient({
 
 // --- Content Type IDs ---
 const CONTENTFUL_INVOICE_TYPE_ID = 'invoice'; // Make sure this matches your actual Contentful ID
-const CONTENTFUL_PAGE_TYPE_ID = 'page';       // Make sure this matches your actual Contentful ID
+const CONTENTFUL_PAGE_TYPE_ID = 'page';       // Use this for homepage AND regular pages
 
 /**
  * Fetches a single Contentful entry based on its slug.
  */
 export async function getPageFromSlug(slug, contentType) {
-    // console.log("***** RUNNING getPageFromSlug v6 - FINAL FIX *****"); // Optional unique marker
+    // console.log(`getPageFromSlug called with slug: ${slug}, contentType: ${contentType}`); // Optional detailed debug
 
     if (slug === undefined || slug === null) {
         return null;
     }
 
-    let typeToQuery = contentType;
+    let typeToQuery;
     let slugForQuery = slug;
 
-    // 1. Determine Content Type if not explicitly provided
-    if (!typeToQuery) {
+    // 1. Determine Content Type ID based on slug pattern or explicit request
+    if (contentType) {
+        // If type is explicitly provided, use it (primarily for homepage '/' override)
+        typeToQuery = contentType;
+        if (typeToQuery === CONTENTFUL_PAGE_TYPE_ID) {
+             slugForQuery = slug === '/' ? '/' : slug.replace(/^\/|\/$/g, ''); // Clean page slugs
+        } else if (typeToQuery === CONTENTFUL_INVOICE_TYPE_ID && slug.startsWith('/invoices/')) {
+             slugForQuery = slug.substring('/invoices/'.length).replace(/\/$/, '');
+        } else {
+            // Handle potential mismatch if contentType is passed but doesn't match slug pattern
+            slugForQuery = slug.replace(/^\/|\/$/g, '');
+        }
+
+    } else {
+        // Auto-detect type based on slug pattern
         if (slug.startsWith('/invoices/')) {
             typeToQuery = CONTENTFUL_INVOICE_TYPE_ID;
-            slugForQuery = slug.substring('/invoices/'.length).replace(/\/$/, ''); // Remove trailing slash from slug
-            if (!slugForQuery) {
-                return null;
-            }
-        } else {
-            // Default to 'page' type for everything else, including homepage slug '/'
-            typeToQuery = CONTENTFUL_PAGE_TYPE_ID;
-             // Adjust slug format for query - assumes 'page' slugs don't have leading '/' EXCEPT homepage itself
-            slugForQuery = slug === '/' ? '/' : slug.replace(/^\/|\/$/g, ''); // Remove leading/trailing slashes for non-root slugs
-        }
-    } else {
-         // Content Type was provided explicitly, adjust slug if needed
-         if (typeToQuery === CONTENTFUL_INVOICE_TYPE_ID && slug.startsWith('/invoices/')) {
             slugForQuery = slug.substring('/invoices/'.length).replace(/\/$/, '');
-         } else if (typeToQuery === CONTENTFUL_PAGE_TYPE_ID) {
-             slugForQuery = slug === '/' ? '/' : slug.replace(/^\/|\/$/g, '');
-         }
-         // Add adjustments for other explicit types if needed
+        } else {
+            // Default to 'page' for '/' and other paths not matching invoice pattern
+            typeToQuery = CONTENTFUL_PAGE_TYPE_ID;
+            slugForQuery = slug === '/' ? '/' : slug.replace(/^\/|\/$/g, ''); // Clean page slugs
+        }
     }
+
+    // Validate slugForQuery for invoice type
+    if (typeToQuery === CONTENTFUL_INVOICE_TYPE_ID && !slugForQuery) {
+         if (process.env.NODE_ENV === 'development') {
+            console.warn(`[content.js] Invalid invoice slug detected after processing: ${slug}`);
+         }
+         return null;
+    }
+
 
     if (!typeToQuery) {
          if (process.env.NODE_ENV === 'development') {
@@ -68,6 +80,8 @@ export async function getPageFromSlug(slug, contentType) {
          }
         return null;
     }
+
+    // console.log(`[content.js] Querying Contentful: type='${typeToQuery}', slug='${slugForQuery}'`); // Optional debug
 
     try {
         // Build the query object - assumes BOTH 'page' and 'invoice' types have a 'fields.slug'
@@ -80,14 +94,15 @@ export async function getPageFromSlug(slug, contentType) {
 
         const entries = await client.getEntries(queryOptions);
 
-        // *** THE PROBLEMATIC AUTH TRY/CATCH BLOCK IS NOW COMPLETELY REMOVED ***
+        // *** THE PROBLEMATIC TRY/CATCH BLOCK RELATED TO 'auth' HAS BEEN REMOVED ***
 
         // Check if items exist and return the first one, otherwise return null
         if (entries?.items?.length > 0) {
+            // console.log(`[content.js] Found entry for type='${typeToQuery}', slug='${slugForQuery}'`); // Optional debug
             return entries.items[0];
         } else {
              if (process.env.NODE_ENV === 'development') {
-                 console.warn(`[content.js] No entry found for type='${typeToQuery}', slug='${slugForQuery}'`);
+                 console.warn(`[content.js] No entry found for type='${typeToQuery}', slug='${slugForQuery}' using query:`, queryOptions);
              }
             return null;
         }
@@ -103,7 +118,8 @@ export async function getPageFromSlug(slug, contentType) {
                  console.error(`[content.js] HINT: The resolved content type ID '${typeToQuery}' might be incorrect or does not exist in Contentful space '${space}'. Check CONTENTFUL_*_TYPE_ID variables/defaults.`);
              }
         } else {
-            console.error('[content.js] Full Error Object:', error);
+             // Log the full error if no response data is available
+             console.error('[content.js] Full Error Object:', error);
         }
         return null; // Return null on error to allow notFound() in page component
     }
