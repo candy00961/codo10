@@ -1,10 +1,17 @@
 // src/app/page.jsx
+import { draftMode } from 'next/headers'; // Import draftMode (though not strictly needed for this fix, good practice)
 import { notFound } from 'next/navigation';
 import { Hero } from '../components/Hero.jsx'; // Verify path
 import { Stats } from '../components/Stats.jsx'; // Verify path
 import { Button } from '../components/Button.jsx'; // Verify path
 // Assuming this path is correct based on your file tree
 import { getPageFromSlug } from '../utils/content.js';
+
+// ** ADD THIS LINE TO FORCE DYNAMIC RENDERING **
+// This prevents Next.js from trying to prerender this page at build time.
+export const dynamic = 'force-dynamic';
+// *******************************************
+
 
 // Map Contentful Content Type IDs to React components
 // Add any other section components you might create
@@ -17,7 +24,7 @@ const componentMap = {
 };
 
 // Renamed component to HomePage for clarity
-export default async function page() {
+export default async function HomePage() {
   try {
     // Fetch the 'page' entry with slug '/'
     // Explicitly request 'page' content type for the homepage slug
@@ -26,7 +33,7 @@ export default async function page() {
     // Check if the page, its fields, or the sections array are missing
     if (!page || !Array.isArray(page.fields?.sections)) {
       if (process.env.NODE_ENV === 'development') {
-         console.error("Error: Homepage ('/' page entry) not found, missing fields, or missing sections.", page);
+         console.error("Error: Homepage ('/' page entry, type 'page') not found, missing fields, or missing sections.", page);
       }
       return notFound(); // Return 404 page if homepage content is missing or invalid
     }
@@ -51,9 +58,8 @@ export default async function page() {
           if (!Component) {
             if (process.env.NODE_ENV === 'development') {
               console.warn(`No component mapped for section content type: ${contentTypeId}`);
-              // FIX APPLIED HERE: Replacing the literal apostrophe with '
-              // This line (around 56 based on prev logs) is causing the error in page.jsx
-              return <div key={section.sys.id}>Component for &apos;{contentTypeId}&apos; not found</div>;
+              // Use escaped apostrophe
+              return <div key={section.sys.id}>Component for '{contentTypeId}' not found</div>;
             }
             return null; // Don't render anything in production for unmapped components
           }
