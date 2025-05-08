@@ -1,69 +1,33 @@
-import { notFound } from 'next/navigation';
-import { createClient } from 'contentful';
-import { Hero } from '../components/Hero.jsx';  // Fixed path
-import { Stats } from '../components/Stats.jsx';  // Fixed path
+#!/usr/bin/env node
 
-// Map Contentful section types to React components
-const componentMap = {
-  hero: Hero,
-  stats: Stats,
+const path = require('path');
+const contentfulImport = require('contentful-import');
+const dotenv = require('dotenv');
+
+dotenv.config();
+
+const managementToken = process.env.CONTENTFUL_MANAGEMENT_TOKEN || process.argv[2];
+const spaceId = process.env.CONTENTFUL_SPACE_ID || process.argv[3];
+
+if (!managementToken || !spaceId) {
+  console.error(
+    'Contentful management token or space ID were not provided.\n\nUsage:\n./export.js <managementToken> <spaceId>\n',
+  );
+  process.exit(1);
+}
+
+const options = {
+  contentFile: path.join(__dirname, 'export.json'),
+  spaceId: spaceId,
+  managementToken: managementToken,
+  uploadAssets: true,
+  assetsDirectory: __dirname,
 };
 
-export default async function Page({ params, searchParams }) {
-  const isPreview = searchParams?.preview === 'true' || false;
-  const pageSlug = Array.isArray(params?.slug) ? params.slug.join('/') : params.slug || 'home';
-  const pageData = await fetchPageData(pageSlug, isPreview);
-
-  if (!pageData) {
-    return notFound();
-  }
-
-  return (
-    <div data-sb-object-id={pageData.sys.id}>
-      {(pageData.fields.sections || []).map((section, idx) => {
-        const Component = componentMap[section.type];
-        if (!Component) {
-          if (process.env.NODE_ENV === 'development') {
-            // console.warn(`No component found for section type: ${section.type}`);
-          }
-          return null;
-        }
-        return (
-          <Component
-            key={idx}
-            {...section}
-            id={section.sys?.id || `${pageData.sys.id}-${idx}`}
-          />
-        );
-      })}
-    </div>
-  );
-}
-
-async function fetchPageData(pageSlug, isPreview = false) {
-  const accessToken = isPreview
-    ? process.env.NEXT_PUBLIC_CONTENTFUL_PREVIEW_TOKEN
-    : process.env.CONTENTFUL_DELIVERY_TOKEN;
-
-  const client = createClient({
-    space: process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID,
-    accessToken,
+contentfulImport(options)
+  .then(() => {
+    console.log('Data imported successfully');
+  })
+  .catch((error) => {
+    console.error('Error importing content:', error);
   });
-
-  try {
-    const response = await client.getEntries({
-      content_type: 'homePage',
-      'fields.slug': pageSlug,
-      include: 2,
-    });
-
-    if (response.items.length === 0) {
-      return null;
-    }
-
-    return response.items[0];
-  } catch (error) {
-    // console.error(`Error fetching page data for slug "${pageSlug}":`, error);
-    return null;
-  }
-}
