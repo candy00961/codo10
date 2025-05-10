@@ -13,7 +13,7 @@ export default defineStackbitConfig({
   contentSources: [
     new ContentfulContentSource({
       // *** TEMPORARY HARDCODING FOR TESTING ***
-      spaceId: 'ckfxurkvy1l5', // Replace with your actual space ID string literal
+      spaceId: process.env.CONTENTFUL_SPACE_ID, // Replace with your actual space ID string literal
       // ****************************************
       environment: process.env.CONTENTFUL_ENVIRONMENT || 'master',
       previewToken: process.env.CONTENTFUL_PREVIEW_TOKEN!,
