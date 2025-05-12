@@ -35,7 +35,6 @@ export default defineStackbitConfig({
     // --- Change type to "data" for component/data models ---
     { name: 'hero', type: 'data' },
     { name: 'stats', type: 'data' },
-@@ -52,43 +48,50 @@
 
   // Keep siteMap function for now
   siteMap: ({ documents }) => {
