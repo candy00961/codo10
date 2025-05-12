@@ -18,8 +18,9 @@ export default async function HomePage() {
 
   try {
     // ✅ FIX: Await draftMode properly
-    const draft = await draftMode();
-    isPreview = draft.isEnabled;
+    const { isEnabled } = await draftMode();
+    const isPreview = isEnabled;
+
   } catch (e) {
     console.warn('draftMode not available, assuming production:', e);
   }
