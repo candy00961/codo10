@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { draftMode } from 'next/headers'; // ✅ FIX: Import this
+import { draftMode } from 'next/headers';
 import { Hero } from '../components/Hero.jsx';
 import { Stats } from '../components/Stats.jsx';
 import { Button } from '../components/Button.jsx';
@@ -7,30 +7,32 @@ import { getPageFromSlug } from '../utils/content.js';
 
 export const dynamic = 'force-dynamic';
 
+// Map Contentful content types to components
 const componentMap = {
   hero: Hero,
   stats: Stats,
-  button: Button
+  button: Button,
 };
 
 export default async function HomePage() {
+  // ✅ Correctly await draftMode()
   let isPreview = false;
-
   try {
-    // ✅ FIX: Await draftMode properly
     const { isEnabled } = await draftMode();
-    const isPreview = isEnabled;
-
+    isPreview = isEnabled;
   } catch (e) {
-    console.warn('draftMode not available, assuming production:', e);
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('draftMode not available, assuming production:', e);
+    }
   }
 
   try {
-    const page = await getPageFromSlug("/", 'page', isPreview); // 🔁 optional: pass preview flag
+    const page = await getPageFromSlug('/', 'page', isPreview);
 
+    // Handle missing or malformed content
     if (!page || !Array.isArray(page.fields?.sections)) {
       if (process.env.NODE_ENV === 'development') {
-         console.error("Homepage ('/' page entry) not found or malformed.", page);
+        console.error("Homepage ('/' entry) not found or malformed:", page);
       }
       return notFound();
     }
@@ -38,28 +40,35 @@ export default async function HomePage() {
     return (
       <div data-sb-object-id={page.sys.id}>
         {page.fields.sections.map((section) => {
-          if (!section?.sys?.contentType?.sys?.id || !section.fields || !section.sys.id) {
-             if (process.env.NODE_ENV === 'development') {
-                console.warn("Skipping invalid section:", section);
-             }
-             return null;
+          const contentTypeId = section?.sys?.contentType?.sys?.id;
+          const sectionId = section?.sys?.id;
+
+          if (!contentTypeId || !section.fields || !sectionId) {
+            if (process.env.NODE_ENV === 'development') {
+              console.warn('Skipping invalid section:', section);
+            }
+            return null;
           }
 
-          const contentTypeId = section.sys.contentType.sys.id;
           const Component = componentMap[contentTypeId];
 
           if (!Component) {
             if (process.env.NODE_ENV === 'development') {
               console.warn(`No component mapped for ${contentTypeId}`);
-              return <div key={section.sys.id}>Component for &apos;{contentTypeId}&apos; not found</div>;
+              return (
+                <div key={sectionId}>
+                  Component for &apos;{contentTypeId}&apos; not found
+                </div>
+              );
             }
             return null;
           }
 
+          // ✅ Safe render with required props
           return (
             <Component
-              key={section.sys.id}
-              id={section.sys.id}
+              key={sectionId}
+              id={sectionId}
               {...section.fields}
             />
           );
@@ -67,7 +76,7 @@ export default async function HomePage() {
       </div>
     );
   } catch (error) {
-    console.error("Error rendering homepage:", error);
+    console.error('Error rendering homepage:', error);
     return notFound();
   }
 }
