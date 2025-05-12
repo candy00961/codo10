@@ -1,16 +1,12 @@
-// src/app/page.jsx
-// FIX: Corrected import paths from '../../' to '../'
 import { notFound } from 'next/navigation';
+import { draftMode } from 'next/headers'; // ✅ FIX: Import this
 import { Hero } from '../components/Hero.jsx';
 import { Stats } from '../components/Stats.jsx';
 import { Button } from '../components/Button.jsx';
 import { getPageFromSlug } from '../utils/content.js';
 
-// Keep this line if you want to continue testing dynamic rendering
-// Remove it if you want to attempt static generation for the homepage again
 export const dynamic = 'force-dynamic';
 
-// Map Contentful Content Type IDs to React components
 const componentMap = {
   hero: Hero,
   stats: Stats,
@@ -18,15 +14,22 @@ const componentMap = {
 };
 
 export default async function HomePage() {
-  try {
-    // Fetch the 'page' entry with slug '/'
-    // Explicitly request 'page' content type for the homepage slug
-    const page = await getPageFromSlug("/", 'page');
+  let isPreview = false;
 
-    // Check if the page, its fields, or the sections array are missing
+  try {
+    // ✅ FIX: Await draftMode properly
+    const draft = await draftMode();
+    isPreview = draft.isEnabled;
+  } catch (e) {
+    console.warn('draftMode not available, assuming production:', e);
+  }
+
+  try {
+    const page = await getPageFromSlug("/", 'page', isPreview); // 🔁 optional: pass preview flag
+
     if (!page || !Array.isArray(page.fields?.sections)) {
       if (process.env.NODE_ENV === 'development') {
-         console.error("Error: Homepage ('/' page entry, type 'page') not found, missing fields, or missing sections.", page);
+         console.error("Homepage ('/' page entry) not found or malformed.", page);
       }
       return notFound();
     }
@@ -36,7 +39,7 @@ export default async function HomePage() {
         {page.fields.sections.map((section) => {
           if (!section?.sys?.contentType?.sys?.id || !section.fields || !section.sys.id) {
              if (process.env.NODE_ENV === 'development') {
-                console.warn("Skipping rendering of invalid section object:", section);
+                console.warn("Skipping invalid section:", section);
              }
              return null;
           }
@@ -46,8 +49,7 @@ export default async function HomePage() {
 
           if (!Component) {
             if (process.env.NODE_ENV === 'development') {
-              console.warn(`No component mapped for section content type: ${contentTypeId}`);
-              // Use escaped apostrophe
+              console.warn(`No component mapped for ${contentTypeId}`);
               return <div key={section.sys.id}>Component for &apos;{contentTypeId}&apos; not found</div>;
             }
             return null;
@@ -64,7 +66,7 @@ export default async function HomePage() {
       </div>
     );
   } catch (error) {
-    console.error("Error fetching or rendering homepage:", error);
+    console.error("Error rendering homepage:", error);
     return notFound();
   }
 }
