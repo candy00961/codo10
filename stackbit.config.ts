@@ -36,7 +36,7 @@ export default defineStackbitConfig({
     { name: 'hero', type: 'data' },
     { name: 'stats', type: 'data' },
     { name : 'statItem', type : 'data'},
-  ]
+  ],
 
   // Keep siteMap function for now
   siteMap: ({ documents }) => {
